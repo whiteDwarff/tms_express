@@ -1,26 +1,29 @@
 import examInfoService from "../service/examInfoService.js";
+import { ApiResponse } from "../../utils/response.js";
 
-const findAllExamInfo = async (req, res, next) => {
+const findAllExamInfo = async (req, res) => {
   try {
     const params = req.query;
     const result = await examInfoService.findAllExamInfo(params);
-
-    res.status(200).json({
-      status: 200,
-      message: "success",
-      result: result,
-    });
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(`[Controller] findAllExamInfo :: ${err}`);
+    ApiResponse.error(res, err);
+  }
+};
 
-    res.status(500).json({
-      status: 500,
-      message: err.message,
-      result: err,
-    });
+const updateExamInfoUseFlag = async (req, res) => {
+  try {
+    const params = req.query;
+    const result = await examInfoService.updateExamInfoUseFlag(params);
+    if(result.message) 
+      ApiResponse.error(res, err, 201);
+    else ApiResponse.success(res, result);
+  } catch (err) {
+    ApiResponse.error(res, err);
   }
 };
 
 export default {
   findAllExamInfo,
+  updateExamInfoUseFlag
 };

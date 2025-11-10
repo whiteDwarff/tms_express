@@ -1,5 +1,4 @@
 import format from "pg-format";
-
 /**
  * 시험정보 목록 개수 조회
  * @param {object} params - 검색조건
@@ -44,7 +43,6 @@ export function buildExamInfoListQuery(params) {
 
   return sql;
 }
-
 /**
  * 시험정보 목록 검색조건 추가
  * @param {object} params - 검색조건
@@ -64,4 +62,18 @@ function applyWhereFilter(params) {
   else if (params.regStDt) sql += format(`AND rgst_dt >= %L`, params.regStDt);
 
   return sql;
+}
+/**
+ * 시험정보 목록 조회
+ * @param {number} examCode - 시험정보pk
+ * @returns {string}        - 쿼리
+ */
+export function buildDeleteExamInfoQuery(examCode) {
+  return format(
+    `
+      UPDATE tb_exam_info SET
+        use_flag = 'N'
+      WHERE exam_code = %s::INTEGER
+    `, examCode
+  );
 }
