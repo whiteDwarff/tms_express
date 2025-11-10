@@ -55,7 +55,7 @@ function applyWhereFilter(params) {
   if (params.rgstId) sql += format("AND reg_id ILIKE %L", `%${params.rgstId}%`);
   if (params.regStDt && params.regEnDt)
     sql += format(
-      "AND rgst_dt between %L::TIMESTAMP AND %L::TIMESTAMP",
+      "AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP",
       params.regStDt,
       params.regEnDt
     );
@@ -74,6 +74,7 @@ export function buildDeleteExamInfoQuery(examCode) {
       UPDATE tb_exam_info SET
         use_flag = 'N'
       WHERE exam_code = %s::INTEGER
-    `, examCode
+    `,
+    examCode
   );
 }
