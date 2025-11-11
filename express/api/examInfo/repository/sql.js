@@ -49,13 +49,13 @@ export function buildExamInfoListQuery(params) {
  * @returns {string}      - 쿼리
  */
 function applyWhereFilter(params) {
-  let sql = "";
+  let sql = '';
   if (params.examName)
-    sql += format("AND exam_name ILIKE %L", `%${params.examName}%`);
-  if (params.rgstId) sql += format("AND reg_id ILIKE %L", `%${params.rgstId}%`);
+    sql += format('AND exam_name ILIKE %L', `%${params.examName}%`);
+  if (params.rgstId) sql += format('AND reg_id ILIKE %L', `%${params.rgstId}%`);
   if (params.regStDt && params.regEnDt)
     sql += format(
-      "AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP",
+      'AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP',
       params.regStDt,
       params.regEnDt
     );
@@ -64,7 +64,7 @@ function applyWhereFilter(params) {
   return sql;
 }
 /**
- * 시험정보 목록 조회
+ * 시험정보 사용유무 변경
  * @param {number} examCode - 시험정보pk
  * @returns {string}        - 쿼리
  */
@@ -76,5 +76,60 @@ export function buildDeleteExamInfoQuery(examCode) {
       WHERE exam_code = %s::INTEGER
     `,
     examCode
+  );
+}
+/**
+ * 시험정보 둥록
+ * @param {object} params - 시험정보
+ * @returns {string}        - 쿼리
+ */
+export function buildInsertExamInfoQuery(params) {
+  return format(
+    `
+      INSERT INTO tb_exam_info ( 
+          exam_name 
+        , rgst_dt 
+      ) VALUES ( 
+          %L
+        , CURRENT_TIMESTAMP
+      ) RETURNING exam_code
+    `, params.examName
+  );
+}
+/**
+ * 시험상세정보 둥록
+ * @param {object} params - 시험상세정보
+ * @returns {string}      - 쿼리
+ */
+export function buildInsertExamFormInfoQuery(params) {
+  return format(
+    `
+      INSERT INTO tb_exam_form_info ( 
+          exam_code
+        , exam_form_name 
+        , exam_order 
+        , exam_method 
+        , exam_total_time 
+        , personal_info_message 
+        , personal_info_use_flag 
+        , rgst_dt 
+      ) VALUES ( 
+          %s
+        , %L
+        , %s
+        , %L
+        , %s
+        , %L
+        , %L
+        , CURRENT_TIMESTAMP
+      )
+    `
+    , params.examCode
+    , params.examFormName
+    , params.examOrder
+    , params.method
+    , params.totalTime
+    , params.personalInfoMessage
+    , params.personalInfoUseFlag
   );
 }

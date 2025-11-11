@@ -27,6 +27,18 @@ const updateExamInfoUseFlag = async (evalCode) => {
   return result;
 };
 
+const editExamInfo = async (params) => {
+  // 등록, 수정 여부 확인
+  const hasExamCode = params?.examCode;
+  let examCode = null;
+
+  // 등록
+  if (!hasExamCode) {
+    let examCode = examInfoRepository.insertExamInfo(params);
+  }
+
+}
+
 export default {
   findAllExamInfo,
   updateExamInfoUseFlag,

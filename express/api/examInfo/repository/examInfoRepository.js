@@ -2,9 +2,12 @@ import db from "../../../db/index.js";
 import { 
   buildExamInfoCountQuery, 
   buildExamInfoListQuery, 
-  buildDeleteExamInfoQuery 
+  buildDeleteExamInfoQuery,
+  buildInsertExamInfoQuery,
+  buildInsertExamFormInfoQuery
 } from "./sql.js";
 import { extractCount } from "../../../db/utils.js";
+
 /**
  * 시험정보 목록 조회
  * @param {object} params - 검색조건
@@ -36,9 +39,28 @@ const updateExamInfoUseFlag = async (examCode) => {
   const result = await db.query(sql);
   return result.rowCount;
 };
+/**
+ * 시험정보 둥록
+ * @param {object} params - 시험정보
+ * @returns {number}
+ */
+const insertExamInfo = async (params) => {
+  const sql = buildInsertExamInfoQuery(examCode);
+  return await db.query(sql);
+};
+/**
+ * 시험상세정보 둥록
+ * @param {object} params - 시험상세정보
+ */
+const insertExamFormInfo = async (params) => {
+  const sql = buildInsertExamFormInfoQuery(examCode);
+  await db.query(sql);
+};
 
 export default {
   findAllExamInfo,
   findExamInfoCount,
-  updateExamInfoUseFlag
+  updateExamInfoUseFlag,
+  insertExamInfo,
+  insertExamFormInfo
 };

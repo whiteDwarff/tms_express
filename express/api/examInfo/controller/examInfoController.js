@@ -8,6 +8,7 @@ const findAllExamInfo = async (req, res) => {
     const result = await examInfoService.findAllExamInfo(params);
     ApiResponse.success(res, result);
   } catch (err) {
+    console.log(err);
     ApiResponse.error(res, err);
   }
 };
