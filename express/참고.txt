@@ -1,0 +1,83 @@
+- GET 요청 시 파라미터 (query param)
+  :: router.get('/examInfo', examInfoController.findAllExamInfo);
+  :: req.query
+
+- PATCH 요청 시 파라미터 (path value)
+  :: router.patch('/examInfo/updateUseFlag/:examCode', examInfoController.updateExamInfoUseFlag);
+  :: req.params
+
+- POST 요청 시 파라미터
+  :: router.post('/examInfo/edit', examInfoController.editExamInfo);
+  :: req.body
+
+------------------------------------------------------------------------------
+** 트랜잭션 설정
+
+### service
+
+1. pool 객체 service에서 import
+  import pool from '../../../db/pool.js';
+
+
+const editExamInfo = async (params) => {
+  const result = {};
+  // 등록, 수정 여부 확인
+  const hasExamCode = params?.examCode;
+  let examCode = null;
+
+  // 2. 커넥션풀에서 하나의 커넥션을 가져온다. ******
+  const client = await pool.connect();
+  try {
+    // 3. 트랜잭션 시작 ******
+    await client.query('BEGIN');
+
+    // 시험정보의 저장 결과
+    let examInfo = [];
+
+    // 4. repository에 client 객체를 매개변수로 추가 ******
+    if (!hasExamCode) {
+      examInfo = await examInfoRepository.insertExamInfo(params, client);
+    } else examInfo = await examInfoRepository.updateExamInfo(params, client);
+
+    // 등록 및 수정 결과가 있다면 상세정보 처리
+    if (examInfo.rowCount) {
+      examCode = examInfo.rows[0].exam_code;
+      for (let [i, item] of params.details.entries()) {
+        item.examOrder = i + 1;
+        // 최초 등록
+        if (!item.examFormCode) {
+          item.examCode = examCode;
+          await examInfoRepository.insertExamFormInfo(item, client);
+          // 수정
+        } else await examInfoRepository.updateExamFormInfo(item, client);
+      }
+      // 5. 실행 시 문제가 없다면 커밋 ******
+      await client.query('COMMIT');
+    } else result.message = `시험정보 ${!hasExamCode ? '등록' : '수정'} 실패하였습니다.`;
+
+    return result;
+  } catch (err) {
+    // 6. 오류가 발생한다면 롤백 ******
+    await client.query('ROLLBACK');
+    console.error('트랜잭션 롤백', err);
+    throw err;
+  } finally {
+    // 7. 커넥션 반납 ******
+    client.release();
+  }
+};
+
+### repository
+
+8. 넘어온 client 객체로 쿼리 실행 
+const insertExamInfo = async (params, client) => {
+  const sql = buildInsertExamInfoQuery(params);
+  return await client.query(sql);
+};
+
+const insertExamFormInfo = async (params, client) => {
+  const sql = buildInsertExamFormInfoQuery(params);
+  await client.query(sql);
+};
+
+------------------------------------------------------------------------------

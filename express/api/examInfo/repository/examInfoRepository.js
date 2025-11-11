@@ -1,12 +1,12 @@
-import db from "../../../db/index.js";
-import { 
-  buildExamInfoCountQuery, 
-  buildExamInfoListQuery, 
+import db from '../../../db/index.js';
+import {
+  buildExamInfoCountQuery,
+  buildExamInfoListQuery,
   buildDeleteExamInfoQuery,
   buildInsertExamInfoQuery,
-  buildInsertExamFormInfoQuery
-} from "./sql.js";
-import { extractCount } from "../../../db/utils.js";
+  buildInsertExamFormInfoQuery,
+} from './sql.js';
+import { extractCount } from '../../../db/utils.js';
 
 /**
  * 시험정보 목록 조회
@@ -44,17 +44,17 @@ const updateExamInfoUseFlag = async (examCode) => {
  * @param {object} params - 시험정보
  * @returns {number}
  */
-const insertExamInfo = async (params) => {
-  const sql = buildInsertExamInfoQuery(examCode);
-  return await db.query(sql);
+const insertExamInfo = async (params, client) => {
+  const sql = buildInsertExamInfoQuery(params);
+  return await client.query(sql);
 };
 /**
  * 시험상세정보 둥록
  * @param {object} params - 시험상세정보
  */
-const insertExamFormInfo = async (params) => {
-  const sql = buildInsertExamFormInfoQuery(examCode);
-  await db.query(sql);
+const insertExamFormInfo = async (params, client) => {
+  const sql = buildInsertExamFormInfoQuery(params);
+  await client.query(sql);
 };
 
 export default {
@@ -62,5 +62,5 @@ export default {
   findExamInfoCount,
   updateExamInfoUseFlag,
   insertExamInfo,
-  insertExamFormInfo
+  insertExamFormInfo,
 };

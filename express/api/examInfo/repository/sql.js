@@ -49,13 +49,13 @@ export function buildExamInfoListQuery(params) {
  * @returns {string}      - 쿼리
  */
 function applyWhereFilter(params) {
-  let sql = '';
+  let sql = "";
   if (params.examName)
-    sql += format('AND exam_name ILIKE %L', `%${params.examName}%`);
-  if (params.rgstId) sql += format('AND reg_id ILIKE %L', `%${params.rgstId}%`);
+    sql += format("AND exam_name ILIKE %L", `%${params.examName}%`);
+  if (params.rgstId) sql += format("AND reg_id ILIKE %L", `%${params.rgstId}%`);
   if (params.regStDt && params.regEnDt)
     sql += format(
-      'AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP',
+      "AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP",
       params.regStDt,
       params.regEnDt
     );
@@ -93,7 +93,8 @@ export function buildInsertExamInfoQuery(params) {
           %L
         , CURRENT_TIMESTAMP
       ) RETURNING exam_code
-    `, params.examName
+    `,
+    params.examName
   );
 }
 /**
@@ -123,13 +124,47 @@ export function buildInsertExamFormInfoQuery(params) {
         , %L
         , CURRENT_TIMESTAMP
       )
+    `,
+    params.examCode,
+    params.formName,
+    params.examOrder,
+    params.method,
+    params.totalTime,
+    params.personalInfoMessage,
+    params.personalInfoUseFlag
+  );
+}
+/**
+ * 시험정보 상세 조회
+ * @param {examCode} examCode - 시험정보pk
+ * @returns {string}      - 쿼리
+ */
+export function buildGetExamInfo(examCode) {
+  return format(
     `
-    , params.examCode
-    , params.examFormName
-    , params.examOrder
-    , params.method
-    , params.totalTime
-    , params.personalInfoMessage
-    , params.personalInfoUseFlag
+    SELECT 
+        tei.exam_code 
+      , tei.exam_name 
+      , tei.use_flag 
+      , JSONB_AGG(
+          JSONB_BUILD_OBJECT(
+              'examFormCode', tefi.exam_form_code 
+            , 'examCode'	  , tefi.exam_code 
+            , 'examName'	  , tefi.exam_form_name 
+            , 'totalTime'	  , tefi.exam_total_time 
+            , 'personalInfoUseFlag', tefi.personal_info_use_flag 
+            , 'personalInfoMessage', COALESCE(tefi.personal_info_message, '')
+            , 'useFlag'	    , tefi.use_flag 
+          ) ORDER BY tefi.EXAM_ORDER 
+        ) 					        AS details
+    FROM tb_exam_info tei 
+    JOIN tb_exam_form_info tefi 
+      ON tefi.exam_code     = tei.exam_code 
+        AND tefi.use_flag   = 'Y'
+    WHERE tei.exam_code  	  = %s
+      AND tei.use_flag 	    = 'Y'
+    GROUP BY tei.exam_code, tei.exam_name, tei.use_flag 
+    `,
+    examCode
   );
 }

@@ -1,5 +1,5 @@
-import examInfoService from "../service/examInfoService.js";
-import { ApiResponse } from "../../utils/response.js";
+import examInfoService from '../service/examInfoService.js';
+import { ApiResponse } from '../../utils/response.js';
 
 // 시험목록 및 개수 조회
 const findAllExamInfo = async (req, res) => {
@@ -8,21 +8,29 @@ const findAllExamInfo = async (req, res) => {
     const result = await examInfoService.findAllExamInfo(params);
     ApiResponse.success(res, result);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     ApiResponse.error(res, err);
   }
 };
 // 시험정보 사용유무 변경
 const updateExamInfoUseFlag = async (req, res) => {
   try {
-    console.log(req.params.examCode);
-    const result = await examInfoService.updateExamInfoUseFlag(
-      req.params?.examCode
-    );
+    const result = await examInfoService.updateExamInfoUseFlag(req.params?.examCode);
     if (result.message) ApiResponse.error(res, err, 201);
     else ApiResponse.success(res, result);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    ApiResponse.error(res, err);
+  }
+};
+// 시험정보 등록 및 수정
+const editExamInfo = async (req, res) => {
+  try {
+    const result = await examInfoService.editExamInfo(req.body);
+    if (result.message) ApiResponse.error(res, err, 201);
+    else ApiResponse.success(res, result);
+  } catch (err) {
+    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -30,4 +38,5 @@ const updateExamInfoUseFlag = async (req, res) => {
 export default {
   findAllExamInfo,
   updateExamInfoUseFlag,
+  editExamInfo,
 };
