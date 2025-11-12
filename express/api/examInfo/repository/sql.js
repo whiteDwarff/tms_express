@@ -4,7 +4,7 @@ import format from "pg-format";
  * @param {object} params - 검색조건
  * @returns {string}      - 결과
  */
-export function buildExamInfoCountQuery(params) {
+function buildExamInfoCount(params) {
   let sql = `
     SELECT COUNT(*)
     FROM tb_exam_info
@@ -19,7 +19,7 @@ export function buildExamInfoCountQuery(params) {
  * @param {object} params - 검색조건
  * @returns {string}      - 결과
  */
-export function buildExamInfoListQuery(params) {
+function buildExamInfoList(params) {
   let sql = `
     SELECT 
         exam_code
@@ -34,7 +34,7 @@ export function buildExamInfoListQuery(params) {
 
   sql += format(
     `
-    ORDER BY exam_code ASC
+    ORDER BY exam_code DESC
     OFFSET %s::INTEGER LIMIT %s::INTEGER
     `,
     params.offset,
@@ -68,7 +68,7 @@ function applyWhereFilter(params) {
  * @param {number} examCode - 시험정보pk
  * @returns {string}        - 쿼리
  */
-export function buildDeleteExamInfoQuery(examCode) {
+function buildDeleteExamInfo(examCode) {
   return format(
     `
       UPDATE tb_exam_info SET
@@ -83,7 +83,7 @@ export function buildDeleteExamInfoQuery(examCode) {
  * @param {object} params - 시험정보
  * @returns {string}        - 쿼리
  */
-export function buildInsertExamInfoQuery(params) {
+function buildInsertExamInfo(params) {
   return format(
     `
       INSERT INTO tb_exam_info ( 
@@ -98,11 +98,29 @@ export function buildInsertExamInfoQuery(params) {
   );
 }
 /**
+ * 시험정보 수정
+ * @param {object} params - 시험정보
+ * @returns {string}        - 쿼리
+ */
+function buildUpdateExamInfo(params) {
+  return format(
+    `
+      UPDATE tb_exam_info SET 
+          exam_name   = %L
+        , updt_dt     = CURRENT_TIMESTAMP
+      WHERE exam_code = %s
+      RETURNING exam_code
+    `,
+    params.examName,
+    params.examCode
+  );
+}
+/**
  * 시험상세정보 둥록
  * @param {object} params - 시험상세정보
  * @returns {string}      - 쿼리
  */
-export function buildInsertExamFormInfoQuery(params) {
+function buildInsertExamFormInfo(params) {
   return format(
     `
       INSERT INTO tb_exam_form_info ( 
@@ -135,11 +153,40 @@ export function buildInsertExamFormInfoQuery(params) {
   );
 }
 /**
+ * 시험상세정보 수정
+ * @param {object} params - 시험상세정보 수정
+ * @returns {string}      - 쿼리
+ */
+function buildUpdateExamFormInfo(params) {
+  return format(
+    `
+      UPDATE tb_exam_form_info SET
+          exam_form_name         = %L
+        , exam_order 			       = %s
+        , exam_method 			     = %L
+        , exam_total_time 		   = %s
+        , personal_info_message  = %L
+        , personal_info_use_flag = %L
+        , use_flag               = %L
+        , updt_dt   		         = CURRENT_TIMESTAMP
+      WHERE exam_form_code       = %s
+    `,
+    params.formName,
+    params.examOrder,
+    params.method,
+    params.totalTime,
+    params.personalInfoMessage,
+    params.personalInfoUseFlag,
+    params.useFlag,
+    params.examFormCode
+  );
+}
+/**
  * 시험정보 상세 조회
  * @param {examCode} examCode - 시험정보pk
  * @returns {string}      - 쿼리
  */
-export function buildGetExamInfo(examCode) {
+function buildFindExamInfo(examCode) {
   return format(
     `
     SELECT 
@@ -150,12 +197,13 @@ export function buildGetExamInfo(examCode) {
           JSONB_BUILD_OBJECT(
               'examFormCode', tefi.exam_form_code 
             , 'examCode'	  , tefi.exam_code 
-            , 'examName'	  , tefi.exam_form_name 
+            , 'formName'	  , tefi.exam_form_name 
+            , 'method'	    , tefi.exam_method 
             , 'totalTime'	  , tefi.exam_total_time 
             , 'personalInfoUseFlag', tefi.personal_info_use_flag 
             , 'personalInfoMessage', COALESCE(tefi.personal_info_message, '')
             , 'useFlag'	    , tefi.use_flag 
-          ) ORDER BY tefi.EXAM_ORDER 
+          ) ORDER BY tefi.exam_order 
         ) 					        AS details
     FROM tb_exam_info tei 
     JOIN tb_exam_form_info tefi 
@@ -167,4 +215,15 @@ export function buildGetExamInfo(examCode) {
     `,
     examCode
   );
+}
+
+export default {
+  buildExamInfoList,
+  buildExamInfoCount,
+  buildDeleteExamInfo,
+  buildInsertExamInfo,
+  buildUpdateExamInfo,
+  buildInsertExamFormInfo,
+  buildUpdateExamFormInfo,
+  buildFindExamInfo
 }

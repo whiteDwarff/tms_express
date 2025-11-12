@@ -16,7 +16,7 @@ const findAllExamInfo = async (req, res) => {
 const updateExamInfoUseFlag = async (req, res) => {
   try {
     const result = await examInfoService.updateExamInfoUseFlag(req.params?.examCode);
-    if (result.message) ApiResponse.error(res, err, 201);
+    if (result.message) ApiResponse.error(res, result, 201);
     else ApiResponse.success(res, result);
   } catch (err) {
     console.error(err);
@@ -27,7 +27,18 @@ const updateExamInfoUseFlag = async (req, res) => {
 const editExamInfo = async (req, res) => {
   try {
     const result = await examInfoService.editExamInfo(req.body);
-    if (result.message) ApiResponse.error(res, err, 201);
+    if (result.message) ApiResponse.error(res, result, 201);
+    else ApiResponse.success(res, result);
+  } catch (err) {
+    console.error(err);
+    ApiResponse.error(res, err);
+  }
+};
+// 시험목록 상세 조회
+const findExamInfo = async (req, res) => {
+  try {
+    const result = await examInfoService.findExamInfo(req.params?.examCode);
+    if(result.message) ApiResponse.error(res, result, 201);
     else ApiResponse.success(res, result);
   } catch (err) {
     console.error(err);
@@ -39,4 +50,5 @@ export default {
   findAllExamInfo,
   updateExamInfoUseFlag,
   editExamInfo,
+  findExamInfo
 };

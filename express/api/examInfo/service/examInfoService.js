@@ -8,21 +8,21 @@ import pool from '../../../db/pool.js';
  */
 const findAllExamInfo = async (params) => {
   // 리스트와 개수를 일괄 조회
-  const [list, count] = await Promise.all([
+  const [{ rows: list }, count] = await Promise.all([
     examInfoRepository.findAllExamInfo(params),
     examInfoRepository.findExamInfoCount(params),
   ]);
-  return { list, count };
+  return { list , count };
 };
 /**
  * 시험정보 사용유무 변경
- * @param {object} evalCode - 시험정보pk
+ * @param {object} examCode - 시험정보pk
  * @returns - 결과
  */
-const updateExamInfoUseFlag = async (evalCode) => {
+const updateExamInfoUseFlag = async (examCode) => {
   const result = {};
-  if (evalCode) {
-    const count = await examInfoRepository.updateExamInfoUseFlag(evalCode);
+  if (examCode) {
+    const count = await examInfoRepository.updateExamInfoUseFlag(examCode);
     if (!count) result.message = '삭제 실패하였습니다.';
   } else result.message = '필수 값 examCode가 누락되었습니다.';
   return result;
@@ -35,7 +35,7 @@ const updateExamInfoUseFlag = async (evalCode) => {
 const editExamInfo = async (params) => {
   const result = {};
   // 등록, 수정 여부 확인
-  const hasExamCode = params?.examCode;
+  const hasExamCode = params.examCode;
   let examCode = null;
 
   // 커넥션풀에서 하나의 커넥션을 가져온다
@@ -50,10 +50,9 @@ const editExamInfo = async (params) => {
     if (!hasExamCode) {
       examInfo = await examInfoRepository.insertExamInfo(params, client);
     } else examInfo = await examInfoRepository.updateExamInfo(params, client);
-
     // 등록 및 수정 결과가 있다면 상세정보 처리
     if (examInfo.rowCount) {
-      examCode = examInfo.rows[0].exam_code;
+      examCode = examInfo.rows[0].examCode;
       for (let [i, item] of params.details.entries()) {
         item.examOrder = i + 1;
         // 최초 등록
@@ -78,9 +77,28 @@ const editExamInfo = async (params) => {
     client.release();
   }
 };
+/**
+ * 시험정보 상세 조회
+ * @param {number} examCode - 시험정보pk
+ * @returns {object}        - 결과
+ */
+const findExamInfo = async (examCode) => {
+  let result = {};
+  if(!examCode || isNaN(examCode)) {
+    result.message = '잘못된 접근 입니다.';
+    return result;
+  }
+  const { rows } = await examInfoRepository.findExamInfo(examCode);
+
+  if(rows.length) return rows[0];
+
+  result.message = '조회된 시험정보가 없습니다.';
+  return result;
+}
 
 export default {
   findAllExamInfo,
   updateExamInfoUseFlag,
   editExamInfo,
+  findExamInfo,
 };

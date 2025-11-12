@@ -21,21 +21,45 @@ const convertKeysToCamelCase = (obj) => {
 /**
  * DB 쿼리를 실행하고, 결과를 camelCase로 변환하여 반환
  * @param {string} sql - SQL 쿼리
- * @param {Array} params - 파라미터 배열
+ * @param {object} client - DB 클라이언트 
  * @returns {Promise<Array>} 결과
  */
-const query = async (sql, params = []) => {
+const query = async (sql, client = null) => {
   try {
-    // 쿼리 실행
-    const res = await pool.query(sql, params);
-    // 조회 결과를 camelCase로 변환
-    return convertKeysToCamelCase(res.rows);
+    console.log(`${ sql };`);
+
+    // 트랜잭션 객체 유무에 따라 다르게 실행
+    const { rows, rowCount } = client ? 
+      await client.query(sql) : await pool.query(sql);
+
+    return {
+      rows: convertKeysToCamelCase(rows) || [],
+      rowCount: rowCount || 0
+    };
   } catch (err) {
-    console.error("DB 쿼리 실행 중 에러 발생", { sql, params, err });
+    console.error('query error', { sql, err });
+    throw err;
+  }
+};
+/**
+ * UPDATE, DELETE, INSERT 개수 반환
+ * @param {string} sql - SQL 쿼리
+ * @param {Array} params - 파라미터
+ * @returns {Promise<Array>} 결과
+ */
+const execute = async (sql) => {
+  try {
+    console.log(`${ sql };`);
+    const res = await pool.query(sql);
+    // 쿼리 실행 결과 rowCount 반환
+    return res?.rowCount || 0; 
+  } catch (err) {
+    console.error('execute error', { sql, err });
     throw err;
   }
 };
 
 export default {
   query,
+  execute,
 };
