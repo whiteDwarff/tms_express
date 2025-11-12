@@ -83,5 +83,5 @@ export default {
   insertExamFormInfo,
   updateExamInfo,
   updateExamFormInfo,
-  findExamInfo
+  findExamInfo,
 };
