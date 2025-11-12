@@ -33,7 +33,7 @@ function buildExamineeList(params) {
       , examinee_major
       , examinee_phone
     , COALESCE(
-      TO_CHAR(updt_dt, 'YYYY-MM-DD YYYY-MM-DD HH24:mi'), ''
+      TO_CHAR(updt_dt, 'YYYY-MM-DD HH24:mi'), ''
       ) 	       AS updt_dt
   FROM tb_examinee_info
   WHERE use_flag = 'Y'
@@ -50,23 +50,27 @@ function buildExamineeList(params) {
 function applyWhereFilter(params) {
   let sql = '';
 
-  if (params.id)       // 응시번호 
+  if (params.id)
+    // 응시번호
     sql += format('AND examinee_id ILIKE %L', `%${params.id}%`);
-  if (params.gender)   // 성별
-    sql += format('AND examinee_gender = %L', `%${params.gender}%`);
-  if (params.name)     // 이름
+  if (params.gender)
+    // 성별
+    sql += format('AND examinee_gender = %L', `${params.gender}`);
+  if (params.name)
+    // 이름
     sql += format('AND examinee_name ILIKE %L', `%${params.name}%`);
-  if (params.college)  // 대학
+  if (params.college)
+    // 대학
     sql += format('AND examinee_college ILIKE %L', `%${params.college}%`);
-  if (params.major)    // 학과
+  if (params.major)
+    // 학과
     sql += format('AND examinee_major ILIKE %L', `%${params.major}%`);
-  if (params.rgstId) 
-    sql += format('AND reg_id ILIKE %L', `%${params.rgstId}%`);
+  if (params.rgstId) sql += format('AND reg_id ILIKE %L', `%${params.rgstId}%`);
   if (params.regStDt && params.regEnDt)
     sql += format(
       'AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP',
       params.regStDt,
-      params.regEnDt
+      params.regEnDt,
     );
   else if (params.regStDt) sql += format(`AND rgst_dt >= %L`, params.regStDt);
 
@@ -75,5 +79,5 @@ function applyWhereFilter(params) {
 
 export default {
   buildExamineeCount,
-  buildExamineeList
-}
+  buildExamineeList,
+};

@@ -18,7 +18,7 @@ app.use(morgan('dev'));
 app.use('/', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(process.env.COOKIE_SECRET);
+// app.use(process.env.COOKIE_SECRET);
 app.use(
   cors({
     // 해당 포트에서 오는 요청만 허용
