@@ -11,6 +11,29 @@
   :: req.body
 
 ------------------------------------------------------------------------------
+## multer 사용법 
+
+ ** router에 등록 필수
+
+ - 여러개의 파일을 다른 필드로 받을 경우
+    router.post(URL
+      upload.any(), 
+      controller.serviceMethod
+    );
+
+  - 하나의 파일을 받을 경우
+    router.post(URL
+      upload.single(FIELD_NAME), 
+      controller.serviceMethod
+    );
+
+  - 여러개의 파일을 하나의 필드로 받을 경우
+    router.post(URL,
+      upload.array(FIELD_NAME, 5),  // 최대 받을 파일 개수 설정
+      controller.serviceMethod
+    );
+------------------------------------------------------------------------------
+
 ** 트랜잭션 설정
 
 ### service

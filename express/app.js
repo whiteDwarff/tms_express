@@ -4,12 +4,13 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import os from 'os';
 
 // router import
 import examInfoRouter from './routes/examInfo.js';
 import examineeRouter from './routes/assign/examinee.js';
 
-// 미들웨어용 api response 
+// 미들웨어용 api response
 import { ApiResponse } from './api/utils/response.js';
 
 dotenv.config();
@@ -41,6 +42,11 @@ app.use(
   }),
 );
 
+// 이미지 경로 설정
+const imgRoot = os.homedir();
+const UPLOADS_BASE_DIR = path.join(imgRoot, 'uploads');
+app.use('/uploads', express.static(UPLOADS_BASE_DIR));
+
 // 5. 라우터 연결
 app.use('/api', examInfoRouter);
 app.use('/api', examineeRouter);
@@ -58,7 +64,7 @@ app.get('/', (req, res) => {
 app.use((req, res, next) => {
   const error = new Error(`Server Error :: '${req.originalUrl}' 경로를 찾을 수 없습니다.`);
   error.status = 404;
-  next(error); 
+  next(error);
 });
 
 // 중앙 오류 처리
