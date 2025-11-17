@@ -72,7 +72,8 @@ function buildDeleteExamInfo(examCode) {
   return format(
     `
       UPDATE tb_exam_info SET
-        use_flag = 'N'
+          use_flag = 'N'
+        , updt_dt  = CURRENT_TIMESTAMP
       WHERE exam_code = %s::INTEGER
     `,
     examCode

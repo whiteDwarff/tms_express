@@ -22,8 +22,18 @@ const findAllExamineeCount = async (params) => {
   // 배열에서 count 추출
   return extractCount(result.rows);
 };
+/**
+ * 응시자 사용여부 변경
+ * @param {number} examineeCode - 응시자 정보pk
+ * @returns {number}
+ */
+const updatExamineeUseFlag = async (examineeCode, client) => {
+  const sql = query.buildUpdateExamineeUseFlag(examineeCode);
+  return await db.execute(sql, client);
+};
 
 export default {
   findAllExamineeInfo,
   findAllExamineeCount,
+  updatExamineeUseFlag
 };

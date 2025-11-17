@@ -76,8 +76,25 @@ function applyWhereFilter(params) {
 
   return sql;
 }
+/**
+ * 응시자 사용여부 변경
+ * @param {examineeCode} params - 응시자pk
+ * @returns {string}      - 쿼리
+ */
+function buildUpdateExamineeUseFlag(examineeCode) {
+  return format(
+    `
+      UPDATE tb_examinee_info SET
+        use_flag = 'N'
+      , updt_dt  = CURRENT_TIMESTAMP
+      WHERE examinee_code = %s::INTEGER
+    `,
+    examineeCode
+  );
+}
 
 export default {
   buildExamineeCount,
   buildExamineeList,
+  buildUpdateExamineeUseFlag
 };
