@@ -24,7 +24,24 @@ const updatExamineeUseFlag = async (req, res) => {
     ApiResponse.error(res, err);
   }
 };
+
+// 응시자정보 등록 및 수정
+const examineeEdit = async (req, res) => {
+  try {
+    const file = req?.file;
+    const body = req.body;
+
+    const result = await service.examineeEdit(body, file);
+    if (result?.message) ApiResponse.error(res, result, 201);
+    else ApiResponse.success(res, result);
+  } catch (err) {
+    console.error(err);
+    ApiResponse.error(res, err);
+  }
+};
+
 export default {
   findAllExamineeInfo,
-  updatExamineeUseFlag
-}
+  updatExamineeUseFlag,
+  examineeEdit,
+};

@@ -1,4 +1,5 @@
 import repository from '../repository/examineeRepository.js';
+import fileService from '../../../file/service/fileService.js';
 import pool from '../../../../db/pool.js';
 
 /**
@@ -25,16 +26,16 @@ const updateExamineeUseFlag = async (params) => {
 
   try {
     const examineeCode = params.examineeCode;
-    if(!examineeCode.length) {
+    if (!examineeCode.length) {
       result.message = '삭제 실패하였습니다.';
       return result;
     }
 
-    for(let code of examineeCode) {
+    for (let code of examineeCode) {
       await repository.updatExamineeUseFlag(code, client);
     }
     await client.query('COMMIT');
-  } catch(err) {
+  } catch (err) {
     // 오류가 발생한다면 롤백
     await client.query('ROLLBACK');
     console.error('트랜잭션 롤백', err);
@@ -43,11 +44,43 @@ const updateExamineeUseFlag = async (params) => {
     // 커넥션 반납
     client.release();
   }
+};
+/**
+ * 응시자 등록 및 수정
+ * @param {object} params - 응시자 정보
+ * @param {file}   file   - 프로필 이미지
+ * @returns - 결과
+ */
+const examineeEdit = async (params, file) => {
+  const result = {};
+  params = JSON.parse(params.data);
+  const hasCode = params.examineeCode != null;
 
-  console.log(params)
-}
+  // 등록인 경우 중복된 응시번호 체크
+  if (!hasCode) {
+    const count = await repository.examineeIdDuplicatedCheck(params.examineeId);
+    if (count > 0) {
+      result.message = '중복된 응시번호가 존재합니다.';
+      return result;
+    }
+  }
+
+  // 파일이 있다면 저장
+  if (file) {
+    const { fullPath } = await fileService.saveFileFromMemory(file, 'profile');
+    params.examineeImg = fullPath;
+  }
+
+  // 등록
+  const count = await repository.insertExaminee(params);
+
+  if (!count) result.message = '저장 실패하였습니다.';
+
+  return result;
+};
 
 export default {
   findAllExamineeInfo,
-  updateExamineeUseFlag
+  updateExamineeUseFlag,
+  examineeEdit,
 };

@@ -31,9 +31,31 @@ const updatExamineeUseFlag = async (examineeCode, client) => {
   const sql = query.buildUpdateExamineeUseFlag(examineeCode);
   return await db.execute(sql, client);
 };
+/**
+ * 중복된 응시번호 확인
+ * @param {string} examineeId - 응시번호
+ * @returns {number}
+ */
+const examineeIdDuplicatedCheck = async (examineeId) => {
+  const sql = query.buildExamineeIdDuplicatedCheck(examineeId);
+  const result = await db.query(sql);
+  // 배열에서 count 추출
+  return extractCount(result.rows);
+};
+/**
+ * 응시자 등록
+ * @param {object} params - 응시자 정보
+ * @returns {number}
+ */
+const insertExaminee = async (params) => {
+  const sql = query.buildInsertExaminee(params);
+  return await db.execute(sql);
+};
 
 export default {
   findAllExamineeInfo,
   findAllExamineeCount,
-  updatExamineeUseFlag
+  updatExamineeUseFlag,
+  examineeIdDuplicatedCheck,
+  insertExaminee,
 };

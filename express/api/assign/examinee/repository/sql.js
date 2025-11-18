@@ -89,12 +89,78 @@ function buildUpdateExamineeUseFlag(examineeCode) {
       , updt_dt  = CURRENT_TIMESTAMP
       WHERE examinee_code = %s::INTEGER
     `,
-    examineeCode
+    examineeCode,
+  );
+}
+/**
+ * 중복된 응시번호 확인
+ * @param {string} examineeId - 응시번호
+ * @returns {string}          - 쿼리
+ */
+function buildExamineeIdDuplicatedCheck(examineeId) {
+  return format(
+    `
+      SELECT COUNT(*)
+      FROM tb_examinee_info
+      WHERE examinee_id = %L
+    `,
+    examineeId,
+  );
+}
+/**
+ * 응시자 등록
+ * @param {object} params - 응시자 정보
+ * @returns {string}      - 쿼리
+ */
+function buildInsertExaminee(params) {
+  return format(
+    `
+      INSERT INTO tb_examinee_info (
+        examinee_id
+      , examinee_pass
+      , examinee_name
+      , examinee_name_en
+      , examinee_birth
+      , examinee_gender
+      , examinee_phone
+      , examinee_email
+      , examinee_college
+      , examinee_major
+      , examinee_img
+      , rgst_dt
+    ) VALUES ( 
+        %L
+      , %L
+      , %L
+      , %L
+      , %L
+      , %L
+      , %L
+      , %L
+      , %L
+      , %L
+      , %L
+      , CURRENT_TIMESTAMP
+    )
+    `,
+    params.examineeId,
+    params.examineePass,
+    params.examineeName,
+    params.examineeNameEn,
+    params.examineeBirth,
+    params.examineeGender,
+    params.examineePhone,
+    params.examineeEmail,
+    params.examineeCollege,
+    params.examineeMajor,
+    params?.examineeImg || '',
   );
 }
 
 export default {
   buildExamineeCount,
   buildExamineeList,
-  buildUpdateExamineeUseFlag
+  buildUpdateExamineeUseFlag,
+  buildExamineeIdDuplicatedCheck,
+  buildInsertExaminee,
 };

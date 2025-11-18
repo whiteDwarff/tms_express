@@ -5,6 +5,7 @@ import session from 'express-session';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import os from 'os';
+import path from 'path';
 
 // router import
 import examInfoRouter from './routes/examInfo.js';
