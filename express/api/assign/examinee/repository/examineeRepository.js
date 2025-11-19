@@ -1,7 +1,6 @@
 import db from '../../../../db/index.js';
 import query from './sql.js';
 import { extractCount } from '../../../../db/utils.js';
-
 /**
  * 응시자 목록 조회
  * @param {object} params - 검색조건
@@ -27,7 +26,7 @@ const findAllExamineeCount = async (params) => {
  * @param {number} examineeCode - 응시자 정보pk
  * @returns {number}
  */
-const updatExamineeUseFlag = async (examineeCode, client) => {
+const updateExamineeUseFlag = async (examineeCode, client) => {
   const sql = query.buildUpdateExamineeUseFlag(examineeCode);
   return await db.execute(sql, client);
 };
@@ -51,11 +50,22 @@ const insertExaminee = async (params) => {
   const sql = query.buildInsertExaminee(params);
   return await db.execute(sql);
 };
+/**
+ * 응시자 조회
+ * @param {number} examineeCode - 응시자 정보
+ * @returns {object}
+ */
+const findExaminee = async (examineeCode) => {
+  const sql = query.buildFindExaminee(examineeCode);
+  return await db.query(sql);
+}
+
 
 export default {
   findAllExamineeInfo,
   findAllExamineeCount,
-  updatExamineeUseFlag,
+  updateExamineeUseFlag,
   examineeIdDuplicatedCheck,
   insertExaminee,
+  findExaminee
 };

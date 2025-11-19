@@ -14,7 +14,7 @@ const findAllExamineeInfo = async (req, res) => {
 };
 
 // 응시자정보 사용유무 변경
-const updatExamineeUseFlag = async (req, res) => {
+const updateExamineeUseFlag = async (req, res) => {
   try {
     const result = await service.updateExamineeUseFlag(req.body);
     if (result?.message) ApiResponse.error(res, result, 201);
@@ -40,8 +40,21 @@ const examineeEdit = async (req, res) => {
   }
 };
 
+// 응시자 상세조회
+const findExaminee = async (req, res) => {
+  try {
+    const result = await service.findExaminee(req.params?.examineeCode);
+    if (result?.message) ApiResponse.error(res, result, 201);
+    else ApiResponse.success(res, result);
+  } catch (err) {
+    console.error(err);
+    ApiResponse.error(res, err);
+  }
+}
+
 export default {
   findAllExamineeInfo,
-  updatExamineeUseFlag,
+  updateExamineeUseFlag,
   examineeEdit,
+  findExaminee
 };

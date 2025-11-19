@@ -156,6 +156,36 @@ function buildInsertExaminee(params) {
     params?.examineeImg || '',
   );
 }
+/**
+ * 응시자 상세 조회
+ * @param {examineeCode} params - 응시자pk
+ * @returns {string}            - 쿼리
+ */
+function buildFindExaminee(examineeCode) {
+  return format(
+    `
+      SELECT
+          examinee_code
+        , examinee_id
+        , examinee_pass
+        , examinee_name
+        , examinee_name_en
+        , examinee_birth
+        , examinee_gender
+        , examinee_phone
+        , examinee_email
+        , examinee_college
+        , examinee_major
+        , examinee_img
+        , use_flag
+        , rgst_dt
+      FROM tb_examinee_info
+      WHERE use_flag      = 'Y'
+        AND examinee_code = %s
+    `,
+    examineeCode
+  );
+}
 
 export default {
   buildExamineeCount,
@@ -163,4 +193,5 @@ export default {
   buildUpdateExamineeUseFlag,
   buildExamineeIdDuplicatedCheck,
   buildInsertExaminee,
+  buildFindExaminee
 };

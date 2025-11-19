@@ -1,7 +1,7 @@
 import repository from '../repository/examineeRepository.js';
 import fileService from '../../../file/service/fileService.js';
 import pool from '../../../../db/pool.js';
-
+import { validNumber } from '../../../../common/validate-rules.js';
 /**
  * 응시자 목록과 총 개수 조회
  * @param {object} params - 검색조건
@@ -31,9 +31,9 @@ const updateExamineeUseFlag = async (params) => {
       return result;
     }
 
-    for (let code of examineeCode) {
-      await repository.updatExamineeUseFlag(code, client);
-    }
+    for (let code of examineeCode) 
+      await repository.updateExamineeUseFlag(code, client);
+    
     await client.query('COMMIT');
   } catch (err) {
     // 오류가 발생한다면 롤백
@@ -78,9 +78,31 @@ const examineeEdit = async (params, file) => {
 
   return result;
 };
+/**
+ * 응시자 상세조회
+ * @param {object} params - 응시자 정보
+ * @returns - 결과
+ */
+const findExaminee = async (examineeCode) => {
+  const result = {};
+
+  if (!examineeCode || !validNumber(examineeCode)) {
+    result.message = '유효한 검색조건이 아닙니다.';
+    return result;
+  }
+
+  const { rows } = await repository.findExaminee(examineeCode);
+
+  if (!rows.length) {
+    result.message = '응시자를 찾을 수 없습니다.';
+    return result;
+  } 
+  return rows[0];
+}
 
 export default {
   findAllExamineeInfo,
   updateExamineeUseFlag,
   examineeEdit,
+  findExaminee
 };
