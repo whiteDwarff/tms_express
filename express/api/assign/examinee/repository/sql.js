@@ -38,8 +38,17 @@ function buildExamineeList(params) {
   FROM tb_examinee_info
   WHERE use_flag = 'Y'
   `;
+
   sql += applyWhereFilter(params);
-  sql += 'ORDER BY examinee_code DESC';
+
+  sql += format(
+    `
+      ORDER BY examinee_code DESC
+      OFFSET %s LIMIT %s
+    `,
+    params.offset,
+    params.limit,
+  );
   return sql;
 }
 /**
@@ -153,7 +162,7 @@ function buildInsertExaminee(params) {
     params.examineeEmail,
     params.examineeCollege,
     params.examineeMajor,
-    params?.examineeImg || '',
+    params.examineeImg,
   );
 }
 /**
@@ -178,12 +187,47 @@ function buildFindExaminee(examineeCode) {
         , examinee_major
         , examinee_img
         , use_flag
-        , rgst_dt
+        , TO_CHAR(rgst_dt, 'YYYY-MM-DD HH24:MI') AS rgst_dt
       FROM tb_examinee_info
       WHERE use_flag      = 'Y'
         AND examinee_code = %s
     `,
-    examineeCode
+    examineeCode,
+  );
+}
+/**
+ * 응시자 수정
+ * @param {object} params - 응시자 정보
+ * @returns {string}      - 쿼리
+ */
+function buildUpdateExaminee(params) {
+  return format(
+    `
+      UPDATE tb_examinee_info SET
+          examinee_pass     = %L
+        , examinee_name     = %L
+        , examinee_name_en  = %L
+        , examinee_birth    = %L
+        , examinee_gender   = %L
+        , examinee_phone    = %L
+        , examinee_email    = %L
+        , examinee_college  = %L
+        , examinee_major    = %L
+        , examinee_img      = %L
+        , updt_dt           = CURRENT_TIMESTAMP
+      WHERE examinee_code   = %s
+    `,
+    params.examineePass,
+    params.examineeName,
+    params.examineeNameEn,
+    params.examineeBirth,
+    params.examineeGender,
+    params.examineePhone,
+    params.examineeEmail,
+    params.examineeCollege,
+    params.examineeMajor,
+    params.examineeImg,
+    params.examineeCode,
   );
 }
 
@@ -193,5 +237,6 @@ export default {
   buildUpdateExamineeUseFlag,
   buildExamineeIdDuplicatedCheck,
   buildInsertExaminee,
-  buildFindExaminee
+  buildFindExaminee,
+  buildUpdateExaminee,
 };

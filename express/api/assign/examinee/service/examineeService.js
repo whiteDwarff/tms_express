@@ -31,9 +31,8 @@ const updateExamineeUseFlag = async (params) => {
       return result;
     }
 
-    for (let code of examineeCode) 
-      await repository.updateExamineeUseFlag(code, client);
-    
+    for (let code of examineeCode) await repository.updateExamineeUseFlag(code, client);
+
     await client.query('COMMIT');
   } catch (err) {
     // 오류가 발생한다면 롤백
@@ -69,10 +68,12 @@ const examineeEdit = async (params, file) => {
   if (file) {
     const { fullPath } = await fileService.saveFileFromMemory(file, 'profile');
     params.examineeImg = fullPath;
-  }
+  } else params.examineeImg = params.examineeImg || '';
 
-  // 등록
-  const count = await repository.insertExaminee(params);
+  // 등록 및 수정
+  const count = !hasCode
+    ? await repository.insertExaminee(params)
+    : await repository.updateExaminee(params);
 
   if (!count) result.message = '저장 실패하였습니다.';
 
@@ -96,13 +97,13 @@ const findExaminee = async (examineeCode) => {
   if (!rows.length) {
     result.message = '응시자를 찾을 수 없습니다.';
     return result;
-  } 
+  }
   return rows[0];
-}
+};
 
 export default {
   findAllExamineeInfo,
   updateExamineeUseFlag,
   examineeEdit,
-  findExaminee
+  findExaminee,
 };

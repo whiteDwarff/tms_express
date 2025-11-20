@@ -58,8 +58,16 @@ const insertExaminee = async (params) => {
 const findExaminee = async (examineeCode) => {
   const sql = query.buildFindExaminee(examineeCode);
   return await db.query(sql);
-}
-
+};
+/**
+ * 응시자 수정
+ * @param {object} params - 응시자 정보
+ * @returns {number}
+ */
+const updateExaminee = async (params) => {
+  const sql = query.buildUpdateExaminee(params);
+  return await db.execute(sql);
+};
 
 export default {
   findAllExamineeInfo,
@@ -67,5 +75,6 @@ export default {
   updateExamineeUseFlag,
   examineeIdDuplicatedCheck,
   insertExaminee,
-  findExaminee
+  findExaminee,
+  updateExaminee,
 };
