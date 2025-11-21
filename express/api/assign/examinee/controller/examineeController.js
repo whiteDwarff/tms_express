@@ -50,11 +50,11 @@ const findExaminee = async (req, res) => {
     console.error(err);
     ApiResponse.error(res, err);
   }
-}
+};
 
 export default {
   findAllExamineeInfo,
   updateExamineeUseFlag,
   examineeEdit,
-  findExaminee
+  findExaminee,
 };
