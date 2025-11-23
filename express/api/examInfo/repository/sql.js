@@ -1,4 +1,4 @@
-import format from "pg-format";
+import format from 'pg-format';
 /**
  * 시험정보 목록 개수 조회
  * @param {object} params - 검색조건
@@ -26,6 +26,7 @@ function buildExamInfoList(params) {
       , exam_name
       , TO_CHAR(rgst_dt, 'YYYY-MM-DD') AS rgst_dt 
       , rgst_id
+      , ROW_NUMBER() over(ORDER BY exam_code DESC) AS row_num
     FROM tb_exam_info
     WHERE use_flag = 'Y'
   `;
@@ -38,7 +39,7 @@ function buildExamInfoList(params) {
     OFFSET %s::INTEGER LIMIT %s::INTEGER
     `,
     params.offset,
-    params.limit
+    params.limit,
   );
 
   return sql;
@@ -49,15 +50,14 @@ function buildExamInfoList(params) {
  * @returns {string}      - 쿼리
  */
 function applyWhereFilter(params) {
-  let sql = "";
-  if (params.examName)
-    sql += format("AND exam_name ILIKE %L", `%${params.examName}%`);
-  if (params.rgstId) sql += format("AND reg_id ILIKE %L", `%${params.rgstId}%`);
+  let sql = '';
+  if (params.examName) sql += format('AND exam_name ILIKE %L', `%${params.examName}%`);
+  if (params.rgstId) sql += format('AND reg_id ILIKE %L', `%${params.rgstId}%`);
   if (params.regStDt && params.regEnDt)
     sql += format(
-      "AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP",
+      'AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP',
       params.regStDt,
-      params.regEnDt
+      params.regEnDt,
     );
   else if (params.regStDt) sql += format(`AND rgst_dt >= %L`, params.regStDt);
 
@@ -76,7 +76,7 @@ function buildDeleteExamInfo(examCode) {
         , updt_dt  = CURRENT_TIMESTAMP
       WHERE exam_code = %s::INTEGER
     `,
-    examCode
+    examCode,
   );
 }
 /**
@@ -95,7 +95,7 @@ function buildInsertExamInfo(params) {
         , CURRENT_TIMESTAMP
       ) RETURNING exam_code
     `,
-    params.examName
+    params.examName,
   );
 }
 /**
@@ -113,7 +113,7 @@ function buildUpdateExamInfo(params) {
       RETURNING exam_code
     `,
     params.examName,
-    params.examCode
+    params.examCode,
   );
 }
 /**
@@ -150,7 +150,7 @@ function buildInsertExamFormInfo(params) {
     params.method,
     params.totalTime,
     params.personalInfoMessage,
-    params.personalInfoUseFlag
+    params.personalInfoUseFlag,
   );
 }
 /**
@@ -179,7 +179,7 @@ function buildUpdateExamFormInfo(params) {
     params.personalInfoMessage,
     params.personalInfoUseFlag,
     params.useFlag,
-    params.examFormCode
+    params.examFormCode,
   );
 }
 /**
@@ -214,7 +214,7 @@ function buildFindExamInfo(examCode) {
       AND tei.use_flag 	    = 'Y'
     GROUP BY tei.exam_code, tei.exam_name, tei.use_flag 
     `,
-    examCode
+    examCode,
   );
 }
 
@@ -226,5 +226,5 @@ export default {
   buildUpdateExamInfo,
   buildInsertExamFormInfo,
   buildUpdateExamFormInfo,
-  buildFindExamInfo
-}
+  buildFindExamInfo,
+};

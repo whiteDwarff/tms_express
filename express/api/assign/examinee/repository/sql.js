@@ -35,6 +35,7 @@ function buildExamineeList(params) {
     , COALESCE(
       TO_CHAR(updt_dt, 'YYYY-MM-DD HH24:mi'), ''
       ) 	       AS updt_dt
+    , ROW_NUMBER() over(ORDER BY examinee_code DESC) AS row_num
   FROM tb_examinee_info
   WHERE use_flag = 'Y'
   `;
