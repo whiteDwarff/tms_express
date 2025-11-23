@@ -9,9 +9,7 @@ import path from 'path';
 
 // router import
 import examInfoRouter from './routes/examInfo.js';
-import examineeRouter from './routes/assign/examinee.js';
-import locationRouter from './routes/assign/location.js';
-
+import assignRouter from './routes/assign/index.js';
 // 미들웨어용 api response
 import { ApiResponse } from './api/utils/response.js';
 
@@ -49,10 +47,9 @@ const imgRoot = os.homedir();
 const UPLOADS_BASE_DIR = path.join(imgRoot, 'uploads');
 app.use('/uploads', express.static(UPLOADS_BASE_DIR));
 
-// 5. 라우터 연결
+//  라우터 연결
 app.use('/api', examInfoRouter);
-app.use('/api', examineeRouter);
-app.use('/api', locationRouter);
+app.use('/api', assignRouter);
 
 app.use((req, res, next) => {
   console.log('모든 요청에 다 실행됩니다.');
@@ -79,5 +76,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(app.get('port'), () => {
-  console.log(`Liseuning Port :: ${app.get('port')}`);
+  console.log(`express server port :: ${app.get('port')}`);
 });

@@ -26,7 +26,7 @@ function buildExamInfoList(params) {
       , exam_name
       , TO_CHAR(rgst_dt, 'YYYY-MM-DD') AS rgst_dt 
       , rgst_id
-      , ROW_NUMBER() over(ORDER BY exam_code DESC) AS row_num
+      , ROW_NUMBER() OVER(ORDER BY exam_code DESC) AS row_num
     FROM tb_exam_info
     WHERE use_flag = 'Y'
   `;

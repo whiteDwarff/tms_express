@@ -24,7 +24,7 @@ const findAllLocationCount = async (params) => {
 };
 /**
  * 시험장 사용여부 변경
- * @param {array} examroomCode - 시험장 정보pk
+ * @param {array} examroomCode - 시험장pk 목록
  * @returns {number}
  */
 const updateLocationUseFlag = async (examroomCode, client) => {

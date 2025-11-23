@@ -58,7 +58,7 @@ function applyWhereFilter(params) {
 }
 /**
  * 시험장 사용여부 변경
- * @param {array} examroomCode - 시험장pk
+ * @param {array} examroomCode - 시험장pk 목록
  * @returns {string}           - 쿼리
  */
 function buildUpdateLocationUseFlag(examroomCode) {
