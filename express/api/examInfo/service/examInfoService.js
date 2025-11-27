@@ -1,5 +1,11 @@
 import examInfoRepository from '../repository/examInfoRepository.js';
 import pool from '../../../db/pool.js';
+import {
+  ValidationError,
+  NotFoundError,
+  DatabaseError,
+  serviceErrorHandler,
+} from '../../../error/index.js';
 
 /**
  * 시험정보 목록과 총 개수 조회
@@ -7,12 +13,16 @@ import pool from '../../../db/pool.js';
  * @returns - 결과
  */
 const findAllExamInfo = async (params) => {
-  // 리스트와 개수를 일괄 조회
-  const [{ rows: list }, count] = await Promise.all([
-    examInfoRepository.findAllExamInfo(params),
-    examInfoRepository.findExamInfoCount(params),
-  ]);
-  return { list , count };
+  try {
+    // 리스트와 개수를 일괄 조회
+    const [{ rows: list }, count] = await Promise.all([
+      examInfoRepository.findAllExamInfo(params),
+      examInfoRepository.findExamInfoCount(params),
+    ]);
+    return { list, count };
+  } catch (err) {
+    serviceErrorHandler(err);
+  }
 };
 /**
  * 시험정보 사용유무 변경
@@ -20,12 +30,12 @@ const findAllExamInfo = async (params) => {
  * @returns - 결과
  */
 const updateExamInfoUseFlag = async (examCode) => {
-  const result = {};
+  let count = 0;
   if (examCode) {
-    const count = await examInfoRepository.updateExamInfoUseFlag(examCode);
-    if (!count) result.message = '삭제 실패하였습니다.';
-  } else result.message = '필수 값 examCode가 누락되었습니다.';
-  return result;
+    count = await examInfoRepository.updateExamInfoUseFlag(examCode);
+    if (!count) throw new DatabaseError('삭제 실패하였습니다.');
+  } else throw new ValidationError('필수 값 examCode가 누락되었습니다.');
+  return { count };
 };
 /**
  * 시험정보 등록 및 수정
@@ -33,7 +43,6 @@ const updateExamInfoUseFlag = async (examCode) => {
  * @returns - 결과
  */
 const editExamInfo = async (params) => {
-  const result = {};
   // 등록, 수정 여부 확인
   const hasExamCode = params.examCode;
   let examCode = null;
@@ -64,14 +73,13 @@ const editExamInfo = async (params) => {
       }
       // try에서 오류가 나지 않는다면 커밋
       await client.query('COMMIT');
-    } else result.message = `시험정보 ${!hasExamCode ? '등록' : '수정'} 실패하였습니다.`;
+    } else throw new DatabaseError(`시험정보 ${!hasExamCode ? '등록' : '수정'} 실패하였습니다.`);
 
-    return result;
+    return { count: examInfo.rowCount };
   } catch (err) {
     // 오류가 발생한다면 롤백
     await client.query('ROLLBACK');
-    console.error('트랜잭션 롤백', err);
-    throw err;
+    serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();
@@ -83,18 +91,14 @@ const editExamInfo = async (params) => {
  * @returns {object}        - 결과
  */
 const findExamInfo = async (examCode) => {
-  let result = {};
-  if(!examCode || isNaN(examCode)) {
-    result.message = '잘못된 접근 입니다.';
-    return result;
+  if (!examCode || isNaN(examCode)) {
+    throw new ValidationError('잘못된 접근 입니다.');
   }
   const { rows } = await examInfoRepository.findExamInfo(examCode);
 
-  if(rows.length) return rows[0];
-
-  result.message = '조회된 시험정보가 없습니다.';
-  return result;
-}
+  if (rows.length) return rows[0];
+  else throw new NotFoundError('조회된 시험정보가 없습니다.');
+};
 
 export default {
   findAllExamInfo,

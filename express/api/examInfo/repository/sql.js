@@ -52,7 +52,7 @@ function buildExamInfoList(params) {
 function applyWhereFilter(params) {
   let sql = '';
   if (params.examName) sql += format('AND exam_name ILIKE %L', `%${params.examName}%`);
-  if (params.rgstId) sql += format('AND reg_id ILIKE %L', `%${params.rgstId}%`);
+  if (params.rgstId) sql += format('AND rgst_id ILIKE %L', `%${params.rgstId}%`);
   if (params.regStDt && params.regEnDt)
     sql += format(
       'AND rgst_dt BETWEEN %L::TIMESTAMP AND %L::TIMESTAMP',

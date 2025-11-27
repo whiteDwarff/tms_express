@@ -8,7 +8,6 @@ const findAllExamInfo = async (req, res) => {
     const result = await examInfoService.findAllExamInfo(params);
     ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -16,10 +15,8 @@ const findAllExamInfo = async (req, res) => {
 const updateExamInfoUseFlag = async (req, res) => {
   try {
     const result = await examInfoService.updateExamInfoUseFlag(req.params?.examCode);
-    if (result.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -27,10 +24,8 @@ const updateExamInfoUseFlag = async (req, res) => {
 const editExamInfo = async (req, res) => {
   try {
     const result = await examInfoService.editExamInfo(req.body);
-    if (result.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -38,10 +33,8 @@ const editExamInfo = async (req, res) => {
 const findExamInfo = async (req, res) => {
   try {
     const result = await examInfoService.findExamInfo(req.params?.examCode);
-    if(result.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -50,5 +43,5 @@ export default {
   findAllExamInfo,
   updateExamInfoUseFlag,
   editExamInfo,
-  findExamInfo
+  findExamInfo,
 };
