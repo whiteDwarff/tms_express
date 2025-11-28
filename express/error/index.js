@@ -48,6 +48,17 @@ export class DatabaseError extends BaseError {
     }
   }
 }
+// 필수 값 누락, 데이터 형식 오류 등 유효성 검사 실패 시
+export class DuplicatedError extends BaseError {
+  constructor(message = '중복된 값이 존재합니다.', err = null) {
+    super(message, 419, true);
+
+    if (err) {
+      this.context = err.message;
+      this.stack = err.stack;
+    }
+  }
+}
 
 export const serviceErrorHandler = (err) => {
   console.log('-------------------------------------');

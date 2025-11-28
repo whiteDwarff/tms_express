@@ -1,6 +1,6 @@
-import db from '../../../../db/index.js';
+import db from '#root/db/index.js';
+import { extractCount } from '#root/db/utils.js';
 import query from './sql.js';
-import { extractCount } from '../../../../db/utils.js';
 
 /**
  * 설문 목록 조회

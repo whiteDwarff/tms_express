@@ -1,6 +1,12 @@
+import pool from '#root/db/pool.js';
+import { validNumber } from '#root/common/validate-rules.js';
+import {
+  ValidationError,
+  NotFoundError,
+  DatabaseError,
+  serviceErrorHandler,
+} from '#root/error/index.js';
 import repository from '../repository/locationRepository.js';
-import pool from '../../../../db/pool.js';
-import { validNumber } from '../../../../common/validate-rules.js';
 
 /**
  * 시험장 목록과 총 개수 조회
@@ -8,11 +14,15 @@ import { validNumber } from '../../../../common/validate-rules.js';
  * @returns               - 결과
  */
 const findAllLocation = async (params) => {
-  const [{ rows: list }, count] = await Promise.all([
-    repository.findAllLocation(params),
-    repository.findAllLocationCount(params),
-  ]);
-  return { list, count };
+  try {
+    const [{ rows: list }, count] = await Promise.all([
+      repository.findAllLocation(params),
+      repository.findAllLocationCount(params),
+    ]);
+    return { list, count };
+  } catch (err) {
+    throw new serviceErrorHandler(err);
+  }
 };
 /**
  * 시험장 목록 사용여부 변경
@@ -20,31 +30,24 @@ const findAllLocation = async (params) => {
  * @returns               - 결과
  */
 const updateLocationUseFlag = async (params) => {
-  const result = {};
   // 커넥션풀에서 하나의 커넥션을 가져온다
   const client = await pool.connect();
 
   try {
     const examroomCode = params?.examroomCode || [];
     // 삭제할 데이터가 없는 경우
-    if (!examroomCode.length) {
-      result.message = '삭제 실패하였습니다.';
-      return result;
-    }
+    if (!examroomCode.length) throw new ValidationError('삭제 실패하였습니다.');
 
     const count = await repository.updateLocationUseFlag(examroomCode, client);
     // 삭제된 데이터가 없는 경우
-    if (!count) {
-      result.message = '삭제 실패하였습니다.';
-      return result;
-    }
-    //
+    if (!count) throw new NotFoundError('삭제 실패하였습니다.');
+
     await client.query('COMMIT');
+    return { count };
   } catch (err) {
     // 오류가 발생한다면 롤백
-    console.error('트랜잭션 롤백', err);
     await client.query('ROLLBACK');
-    throw err;
+    throw new serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();
@@ -56,7 +59,6 @@ const updateLocationUseFlag = async (params) => {
  * @returns               - 결과
  */
 const editLocation = async (params) => {
-  const result = {};
   // 등록, 수정 여부 확인
   const hasExamroomCode = params.examroomCode;
   let examroomCode = null;
@@ -86,14 +88,15 @@ const editLocation = async (params) => {
       }
       // try에서 오류가 나지 않는다면 커밋
       await client.query('COMMIT');
-    } else result.message = `시험장 ${!hasExamroomCode ? '등록' : '수정'} 실패하였습니다.`;
+    } else throw new DatabaseError(`시험장 ${!hasExamroomCode ? '등록' : '수정'} 실패하였습니다.`);
 
-    return result;
+    return {
+      count: location.rowCount,
+    };
   } catch (err) {
     // 오류가 발생한다면 롤백
     await client.query('ROLLBACK');
-    console.error('트랜잭션 롤백', err);
-    throw err;
+    throw serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();
@@ -105,18 +108,12 @@ const editLocation = async (params) => {
  * @returns {object}            - 결과
  */
 const findLocation = async (excmroomCode) => {
-  console.log(excmroomCode);
-  let result = {};
-  if (!excmroomCode || !validNumber(excmroomCode)) {
-    result.message = '잘못된 접근 입니다.';
-    return result;
-  }
+  if (!excmroomCode || !validNumber(excmroomCode)) throw new ValidationError('잘못된 접근 입니다.');
   const { rows } = await repository.findLocation(excmroomCode);
 
   if (rows.length) return rows[0];
 
-  result.message = '조회된 시험장이 없습니다.';
-  return result;
+  throw new NotFoundError('시험장을 찾을 수 없습니다.');
 };
 
 export default {

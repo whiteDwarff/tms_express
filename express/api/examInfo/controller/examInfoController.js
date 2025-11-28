@@ -1,5 +1,5 @@
 import examInfoService from '../service/examInfoService.js';
-import { ApiResponse } from '../../utils/response.js';
+import { ApiResponse } from '#root/api/utils/response.js';
 
 // 시험목록 및 개수 조회
 const findAllExamInfo = async (req, res) => {

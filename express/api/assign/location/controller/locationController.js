@@ -1,5 +1,5 @@
 import service from '../service/locationService.js';
-import { ApiResponse } from '../../../utils/response.js';
+import { ApiResponse } from '#root/api/utils/response.js';
 
 // 시험장 목록  및 개수 조회
 const findAllLocation = async (req, res) => {
@@ -8,7 +8,6 @@ const findAllLocation = async (req, res) => {
     const result = await service.findAllLocation(params);
     ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -17,8 +16,7 @@ const findAllLocation = async (req, res) => {
 const updateLocationUseFlag = async (req, res) => {
   try {
     const result = await service.updateLocationUseFlag(req.body);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
     console.error(err);
     ApiResponse.error(res, err);
@@ -29,10 +27,8 @@ const updateLocationUseFlag = async (req, res) => {
 const editLocation = async (req, res) => {
   try {
     const result = await service.editLocation(req.body);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -41,10 +37,8 @@ const editLocation = async (req, res) => {
 const findLocation = async (req, res) => {
   try {
     const result = await service.findLocation(req.params?.examroomCode);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };

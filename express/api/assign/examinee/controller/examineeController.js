@@ -1,5 +1,5 @@
 import service from '../service/examineeService.js';
-import { ApiResponse } from '../../../utils/response.js';
+import { ApiResponse } from '#root/api/utils/response.js';
 
 // 응시자 목록  및 개수 조회
 const findAllExamineeInfo = async (req, res) => {
@@ -8,7 +8,6 @@ const findAllExamineeInfo = async (req, res) => {
     const result = await service.findAllExamineeInfo(params);
     ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -17,10 +16,8 @@ const findAllExamineeInfo = async (req, res) => {
 const updateExamineeUseFlag = async (req, res) => {
   try {
     const result = await service.updateExamineeUseFlag(req.body);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -32,10 +29,8 @@ const examineeEdit = async (req, res) => {
     const body = req.body;
 
     const result = await service.examineeEdit(body, file);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -44,10 +39,8 @@ const examineeEdit = async (req, res) => {
 const findExaminee = async (req, res) => {
   try {
     const result = await service.findExaminee(req.params?.examineeCode);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };

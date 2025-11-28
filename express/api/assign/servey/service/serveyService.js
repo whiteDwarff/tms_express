@@ -1,6 +1,12 @@
+import pool from '#root/db/pool.js';
+import { validNumber } from '#root/common/validate-rules.js';
+import {
+  ValidationError,
+  NotFoundError,
+  DatabaseError,
+  serviceErrorHandler,
+} from '#root/error/index.js';
 import repository from '../repository/serveyRepository.js';
-import pool from '../../../../db/pool.js';
-import { validNumber } from '../../../../common/validate-rules.js';
 
 /**
  * 설문 목록과 총 개수 조회
@@ -8,11 +14,15 @@ import { validNumber } from '../../../../common/validate-rules.js';
  * @returns               - 결과
  */
 const findAll = async (params) => {
-  const [{ rows: list }, count] = await Promise.all([
-    repository.findAll(params),
-    repository.findListCount(params),
-  ]);
-  return { list, count };
+  try {
+    const [{ rows: list }, count] = await Promise.all([
+      repository.findAll(params),
+      repository.findListCount(params),
+    ]);
+    return { list, count };
+  } catch (err) {
+    throw new serviceErrorHandler(err);
+  }
 };
 /**
  * 설문 목록 사용여부 변경
@@ -20,30 +30,24 @@ const findAll = async (params) => {
  * @returns               - 결과
  */
 const updateUseFlag = async (params) => {
-  const result = {};
   // 커넥션풀에서 하나의 커넥션을 가져온다
   const client = await pool.connect();
 
   try {
     const researchCode = params?.researchCode || [];
     // 삭제할 데이터가 없는 경우
-    if (!researchCode.length) {
-      result.message = '삭제할 항목이 없습니다.';
-      return result;
-    }
+    if (!researchCode.length) throw new ValidationError('삭제할 항목이 없습니다.');
 
     const count = await repository.updateUseFlag(researchCode, client);
     // 삭제된 데이터가 없는 경우
-    if (!count) {
-      result.message = '삭제 실패하였습니다.';
-      return result;
-    }
+    if (!count) throw new NotFoundError('삭제 실패하였습니다.');
+
     await client.query('COMMIT');
+    return { count };
   } catch (err) {
     // 오류가 발생한다면 롤백
-    console.error('트랜잭션 롤백', err);
     await client.query('ROLLBACK');
-    throw err;
+    throw new serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();

@@ -1,18 +1,30 @@
+import pool from '#root/db/pool.js';
+import { validNumber } from '#root/common/validate-rules.js';
+import {
+  ValidationError,
+  NotFoundError,
+  DatabaseError,
+  serviceErrorHandler,
+} from '#root/error/index.js';
+
+import fileService from '#root/api/file/service/fileService.js';
 import repository from '../repository/examineeRepository.js';
-import fileService from '../../../file/service/fileService.js';
-import pool from '../../../../db/pool.js';
-import { validNumber } from '../../../../common/validate-rules.js';
+
 /**
  * 응시자 목록과 총 개수 조회
  * @param {object} params - 검색조건
  * @returns - 결과
  */
 const findAllExamineeInfo = async (params) => {
-  const [{ rows: list }, count] = await Promise.all([
-    repository.findAllExamineeInfo(params),
-    repository.findAllExamineeCount(params),
-  ]);
-  return { list, count };
+  try {
+    const [{ rows: list }, count] = await Promise.all([
+      repository.findAllExamineeInfo(params),
+      repository.findAllExamineeCount(params),
+    ]);
+    return { list, count };
+  } catch (err) {
+    throw serviceErrorHandler(err);
+  }
 };
 /**
  * 응시자 목록 사용여부 변경
@@ -20,16 +32,12 @@ const findAllExamineeInfo = async (params) => {
  * @returns - 결과
  */
 const updateExamineeUseFlag = async (params) => {
-  const result = {};
   // 커넥션풀에서 하나의 커넥션을 가져온다
   const client = await pool.connect();
 
   try {
     const examineeCode = params.examineeCode;
-    if (!examineeCode.length) {
-      result.message = '삭제 실패하였습니다.';
-      return result;
-    }
+    if (!examineeCode.length) throw new ValidationError('삭제할 항목이 없습니다.');
 
     for (let code of examineeCode) await repository.updateExamineeUseFlag(code, client);
 
@@ -37,8 +45,7 @@ const updateExamineeUseFlag = async (params) => {
   } catch (err) {
     // 오류가 발생한다면 롤백
     await client.query('ROLLBACK');
-    console.error('트랜잭션 롤백', err);
-    throw err;
+    throw serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();
@@ -51,17 +58,13 @@ const updateExamineeUseFlag = async (params) => {
  * @returns - 결과
  */
 const examineeEdit = async (params, file) => {
-  const result = {};
   params = JSON.parse(params.data);
   const hasCode = params.examineeCode != null;
 
   // 등록인 경우 중복된 응시번호 체크
   if (!hasCode) {
     const count = await repository.examineeIdDuplicatedCheck(params.examineeId);
-    if (count > 0) {
-      result.message = '중복된 응시번호가 존재합니다.';
-      return result;
-    }
+    if (count > 0) throw new DuplicatedError('중복된 응시번호가 존재합니다.');
   }
 
   // 파일이 있다면 저장
@@ -75,9 +78,9 @@ const examineeEdit = async (params, file) => {
     ? await repository.insertExaminee(params)
     : await repository.updateExaminee(params);
 
-  if (!count) result.message = '저장 실패하였습니다.';
+  if (!count) throw new DatabaseError('저장 실패하였습니다.');
 
-  return result;
+  return { count };
 };
 /**
  * 응시자 상세조회
@@ -85,19 +88,11 @@ const examineeEdit = async (params, file) => {
  * @returns - 결과
  */
 const findExaminee = async (examineeCode) => {
-  const result = {};
-
-  if (!examineeCode || !validNumber(examineeCode)) {
-    result.message = '유효한 검색조건이 아닙니다.';
-    return result;
-  }
+  if (!examineeCode || !validNumber(examineeCode)) throw ValidationError('잘못된 접근 입니다.');
 
   const { rows } = await repository.findExaminee(examineeCode);
 
-  if (!rows.length) {
-    result.message = '응시자를 찾을 수 없습니다.';
-    return result;
-  }
+  if (!rows.length) throw NotFoundError('응시자를 찾을 수 없습니다.');
   return rows[0];
 };
 

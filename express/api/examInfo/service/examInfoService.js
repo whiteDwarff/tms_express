@@ -1,11 +1,12 @@
-import examInfoRepository from '../repository/examInfoRepository.js';
-import pool from '../../../db/pool.js';
+import pool from '#root/db/pool.js';
+import { validNumber } from '#root/common/validate-rules.js';
 import {
   ValidationError,
   NotFoundError,
   DatabaseError,
   serviceErrorHandler,
-} from '../../../error/index.js';
+} from '#root/error/index.js';
+import examInfoRepository from '../repository/examInfoRepository.js';
 
 /**
  * 시험정보 목록과 총 개수 조회
@@ -21,7 +22,7 @@ const findAllExamInfo = async (params) => {
     ]);
     return { list, count };
   } catch (err) {
-    serviceErrorHandler(err);
+    throw serviceErrorHandler(err);
   }
 };
 /**
@@ -33,7 +34,7 @@ const updateExamInfoUseFlag = async (examCode) => {
   let count = 0;
   if (examCode) {
     count = await examInfoRepository.updateExamInfoUseFlag(examCode);
-    if (!count) throw new DatabaseError('삭제 실패하였습니다.');
+    if (!count) throw new NotFoundError('삭제 실패하였습니다.');
   } else throw new ValidationError('필수 값 examCode가 누락되었습니다.');
   return { count };
 };
@@ -79,7 +80,7 @@ const editExamInfo = async (params) => {
   } catch (err) {
     // 오류가 발생한다면 롤백
     await client.query('ROLLBACK');
-    serviceErrorHandler(err);
+    throw serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();
@@ -97,7 +98,7 @@ const findExamInfo = async (examCode) => {
   const { rows } = await examInfoRepository.findExamInfo(examCode);
 
   if (rows.length) return rows[0];
-  else throw new NotFoundError('조회된 시험정보가 없습니다.');
+  throw new NotFoundError('시험정보를 찾을 수 없습니다.');
 };
 
 export default {

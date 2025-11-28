@@ -1,5 +1,5 @@
+import { ApiResponse } from '#root/api/utils/response.js';
 import service from '../service/serveyService.js';
-import { ApiResponse } from '../../../utils/response.js';
 
 // 설문 목록 및 개수 조회
 const findAll = async (req, res) => {
@@ -17,10 +17,8 @@ const findAll = async (req, res) => {
 const updateUseFlag = async (req, res) => {
   try {
     const result = await service.updateUseFlag(req.body);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
@@ -29,10 +27,8 @@ const updateUseFlag = async (req, res) => {
 const editServey = async (req, res) => {
   try {
     const result = await service.editSurvey(req.body);
-    if (result?.message) ApiResponse.error(res, result, 201);
-    else ApiResponse.success(res, result);
+    ApiResponse.success(res, result);
   } catch (err) {
-    console.error(err);
     ApiResponse.error(res, err);
   }
 };
