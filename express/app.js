@@ -33,7 +33,7 @@ app.use(
   session({
     resave: false,
     saveUninitialized: false,
-    secret: 'tms',
+    secret: process.env.COOKIE_SECRET,
     cookie: {
       httpOnly: true,
       secure: false,
@@ -69,6 +69,7 @@ app.use((req, res, next) => {
 
 // 중앙 오류 처리
 app.use((err, req, res, next) => {
+  console.error(err);
   // 404 핸들러 등에서 보낸 status를 사용하고, 없으면 500
   const status = err.httpCode || 500;
   ApiResponse.error(res, err, status);

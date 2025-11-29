@@ -33,8 +33,19 @@ const editServey = async (req, res) => {
   }
 };
 
+// 설문 상세조회
+const findServey = async (req, res) => {
+  try {
+    const result = await service.findServey(req.params?.researchCode);
+    ApiResponse.success(res, result);
+  } catch (err) {
+    ApiResponse.error(res, err);
+  }
+};
+
 export default {
   findAll,
   updateUseFlag,
   editServey,
+  findServey,
 };

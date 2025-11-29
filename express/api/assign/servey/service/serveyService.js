@@ -59,11 +59,8 @@ const updateUseFlag = async (params) => {
  * @returns               - 결과
  */
 const editSurvey = async (params) => {
-  console.log(params);
-
-  const result = {};
   // 등록, 수정 여부 확인
-  const hasResearchCode = params.researchCode;
+  const hasResearchCode = params.researchCode != null;
   let researchCode = null;
 
   // 커넥션풀에서 하나의 커넥션을 가져온다
@@ -73,46 +70,62 @@ const editSurvey = async (params) => {
     await client.query('BEGIN');
 
     // 시험장 저장 결과
-    let servey = [];
+    let servey = {};
 
     if (!hasResearchCode) {
       servey = await repository.insertSurvey(params, client);
     } else servey = await repository.updateSurvey(params, client);
+
     // 등록 및 수정 결과가 있다면 상세정보 처리
     if (servey.rowCount) {
+      // pk 할당
       researchCode = servey.rows[0].researchCode;
+
       let reItemNo = 0;
       for (let item of params.survey) {
+        // 삭제되지 않은 항목만 순서 재할당
         if (item.useFlag == 'Y') reItemNo++;
         item.reItemNo = reItemNo;
+        // 보기
+        item.reItemExample = item.reItemExample.map((example) => example.value.trim()).join(',');
         // 최초 등록
         if (!item.reItemCode) {
           // 순서
           item.researchCode = researchCode;
           // 설문항목
-          item.reItemExample = item.reItemExample.map((example) => example.value.trim()).join(',');
           await repository.insertSurveyItem(item, client);
           // 수정
         } else await repository.updateSurveyItem(item, client);
       }
       // try에서 오류가 나지 않는다면 커밋
       await client.query('COMMIT');
-    } else result.message = `설문 ${!researchCode ? '등록' : '수정'} 실패하였습니다.`;
+    } else throw new DatabaseError(`설문 ${!researchCode ? '등록' : '수정'} 실패하였습니다.`);
 
-    return result;
+    return {
+      count: servey.rowCount,
+    };
   } catch (err) {
     // 오류가 발생한다면 롤백
     await client.query('ROLLBACK');
-    console.error('트랜잭션 롤백', err);
-    throw err;
+    throw serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();
   }
 };
 
+const findServey = async (researchCode) => {
+  if (!researchCode || !validNumber(researchCode)) throw ValidationError('잘못된 접근 입니다.');
+
+  const { rows } = await repository.findServey(researchCode);
+
+  if (!rows.length) throw NotFoundError('설문을 찾을 수 없습니다.');
+  return rows[0];
+};
+
 export default {
   findAll,
   updateUseFlag,
   editSurvey,
+  findServey,
 };

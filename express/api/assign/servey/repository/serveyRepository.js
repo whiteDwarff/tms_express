@@ -67,6 +67,15 @@ const updateSurveyItem = async (form, client) => {
   const sql = query.buildUpdateSurveyItem(form);
   return await db.query(sql, client);
 };
+/**
+ * 설문 상세 조회
+ * @param {number} researchCode - 설문pk
+ * @returns {object}
+ */
+const findServey = async (researchCode) => {
+  const sql = query.buildFindServey(researchCode);
+  return await db.query(sql);
+};
 
 export default {
   findAll,
@@ -76,4 +85,5 @@ export default {
   updateSurvey,
   insertSurveyItem,
   updateSurveyItem,
+  findServey,
 };

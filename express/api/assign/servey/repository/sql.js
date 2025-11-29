@@ -186,6 +186,42 @@ function buildUpdateSurveyItem(form) {
     form.reItemCode,
   );
 }
+/**
+ * 설문 상세 조회
+ * @param {number} researchCode researchCode - 설문pk
+ * @returns {string} - 결과
+ */
+function buildFindServey(researchCode) {
+  return format(
+    `
+      SELECT 
+          tri.research_code 
+        , tri.research_title 
+        , tri.research_memo 
+        , JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'reItemCode'   , trii.re_item_code 
+              , 'researchCode' , trii.research_code  
+              , 'reItemNo'     , trii.re_item_no 
+              , 'reItemTitle'  , trii.re_item_title 
+              , 'reItemType'   , trii.re_item_type 
+              , 'reItemExample', string_to_array(trii.re_item_example, ',')
+              , 'useFlag'		 , trii.use_flag 
+            ) ORDER BY trii.re_item_no  ASC 
+          ) 				           AS survey
+      FROM tb_research_info tri
+      JOIN tb_research_item_info trii 
+        ON tri.research_code   = trii.research_code 
+          AND trii.use_flag    = 'Y'
+      WHERE trii.research_code = %s
+      GROUP BY tri.research_code 
+          , tri.research_title 
+          , tri.research_memo 
+    `,
+    researchCode,
+  );
+}
+
 export default {
   buildSurveyCount,
   buildSurveyList,
@@ -194,4 +230,5 @@ export default {
   buildUpdateServey,
   buildInsertSurveyItem,
   buildUpdateSurveyItem,
+  buildFindServey,
 };

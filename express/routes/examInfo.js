@@ -1,5 +1,5 @@
 import express from 'express';
-import examInfoController from '../api/examInfo/controller/examInfoController.js';
+import examInfoController from '#root/api/examInfo/controller/examInfoController.js';
 
 const router = express.Router();
 

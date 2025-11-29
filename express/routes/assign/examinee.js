@@ -1,6 +1,6 @@
 import express from 'express';
-import controller from '../../api/assign/examinee/controller/examineeController.js';
-import upload from '../../middleware/uploadMiddleware.js';
+import controller from '#root/api/assign/examinee/controller/examineeController.js';
+import upload from '#root/middleware/uploadMiddleware.js';
 
 const router = express.Router();
 

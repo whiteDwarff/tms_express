@@ -70,7 +70,7 @@ const editLocation = async (params) => {
     await client.query('BEGIN');
 
     // 시험장 저장 결과
-    let location = [];
+    let location = {};
 
     if (!hasExamroomCode) {
       location = await repository.insertExamRoom(params, client);

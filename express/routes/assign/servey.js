@@ -1,5 +1,5 @@
 import express from 'express';
-import controller from '../../api/assign/servey/controller/serveyController.js';
+import controller from '#root/api/assign/servey/controller/serveyController.js';
 
 const router = express.Router();
 
@@ -10,6 +10,6 @@ router.patch('/assign/servey/updateUseFlag', controller.updateUseFlag);
 // 등록 및 수정
 router.post('/assign/servey/edit', controller.editServey);
 // // 상세조회
-// router.get('/assign/location/:examroomCode', controller.findLocation);
+router.get('/assign/servey/:researchCode', controller.findServey);
 
 export default router;
