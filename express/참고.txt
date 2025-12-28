@@ -32,6 +32,8 @@
       upload.array(FIELD_NAME, 5),  // 최대 받을 파일 개수 설정
       controller.serviceMethod
     );
+
+    const file = req?.files;
 ------------------------------------------------------------------------------
 
 ** 트랜잭션 설정

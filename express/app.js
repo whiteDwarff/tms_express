@@ -10,6 +10,7 @@ import path from 'path';
 // router import
 import examInfoRouter from './routes/examInfo.js';
 import assignRouter from './routes/assign/index.js';
+import commonRouter from './routes/common.js';
 // 미들웨어용 api response
 import { ApiResponse } from './api/utils/response.js';
 
@@ -50,6 +51,7 @@ app.use('/uploads', express.static(UPLOADS_BASE_DIR));
 //  라우터 연결
 app.use('/api', examInfoRouter);
 app.use('/api', assignRouter);
+app.use('/api', commonRouter);
 
 app.use((req, res, next) => {
   console.log('모든 요청에 다 실행됩니다.');

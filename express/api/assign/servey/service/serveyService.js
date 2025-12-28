@@ -21,7 +21,7 @@ const findAll = async (params) => {
     ]);
     return { list, count };
   } catch (err) {
-    throw new serviceErrorHandler(err);
+    throw serviceErrorHandler(err);
   }
 };
 /**
@@ -47,7 +47,7 @@ const updateUseFlag = async (params) => {
   } catch (err) {
     // 오류가 발생한다면 롤백
     await client.query('ROLLBACK');
-    throw new serviceErrorHandler(err);
+    throw serviceErrorHandler(err);
   } finally {
     // 커넥션 반납
     client.release();
