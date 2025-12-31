@@ -1,12 +1,20 @@
 import { ApiResponse } from '#root/api/utils/response.js';
 import service from '../service/examCategoryService.js';
 
-// 설문 목록 및 개수 조회
+// 시험분류 목록 조회
 const findAll = async (req, res) => {
   try {
-    const params = req.query;
-    const result = await service.findAll(params);
-    ApiResponse.success(res, result);
+    const result = await service.findAll();
+    ApiResponse.success(res, result); 
+  } catch (err) {
+    console.error(err);
+    ApiResponse.error(res, err);
+  }
+};
+// 시험분류 목록 등록 및 수정
+const editExamCategory = async (req, res) => {
+  try {
+    ApiResponse.success(res, await service.editExamCategory(req.body));
   } catch (err) {
     console.error(err);
     ApiResponse.error(res, err);
@@ -15,4 +23,5 @@ const findAll = async (req, res) => {
 
 export default {
   findAll,
+  editExamCategory
 };

@@ -1,5 +1,9 @@
 import format from 'pg-format';
 
+/**
+ * 시험분류 목록 조회
+ * @returns - 시험분류 목록
+ */
 function buildFindExamCategoryList() {
   return format(
     `
@@ -36,7 +40,7 @@ function buildFindExamCategoryList() {
               teci3.sub1_code
             , JSONB_AGG(
                 JSONB_BUILD_OBJECT(
-                    'key' 	 , teci3.cate_code 
+                    'key' 	   , teci3.cate_code 
                   , 'cateCode' , teci3.cate_code 
                   , 'name'     , teci3.cate_name 
                   , 'depth'    , teci3.cate_step 
@@ -63,11 +67,59 @@ function buildFindExamCategoryList() {
         ON teci2.parent_code = teci.cate_code
       WHERE teci.cate_step  		 = 1
         AND teci.use_flag 		   = 'Y'
-      ORDER BY teci.cate_code ASC 
+      ORDER BY teci.cate_code DESC 
     `,
+  );
+}
+/**
+ * 시험분류 등록
+ * @param {object} form - 시험분류 정보
+ * @returns {any}       - 시험분류pk
+ */
+function buildInsertExamCategory(form) {
+  return format(
+    `
+      INSERT INTO tb_exam_cate_info (
+          cate_name 
+        , parent_code 
+        , sub1_code 
+        , cate_step 
+      ) VALUES (
+          %L
+        , %L
+        , %L 
+        , %s
+      ) RETURNING cate_code
+    `,
+    form.name,
+    form?.rootKey || null,
+    form?.nodeKey || null,
+    form.depth,
+  );
+}
+/**
+ * 시험분류 수정
+ * @param {object} form - 시험분류 정보
+ * @returns {any}       - 시험분류pk
+ */
+function buildUpdateExamCategory(form) {
+  return format(
+    `
+      UPDATE tb_exam_cate_info SET 
+          cate_name   = %L
+        , use_flag    = %L
+        , updt_dt     = CURRENT_TIMESTAMP 
+      WHERE cate_code = %s
+      RETURNING cate_code
+    `,
+    form.name,
+    form.useFlag,
+    form.cateCode,
   );
 }
 
 export default {
   buildFindExamCategoryList,
+  buildInsertExamCategory,
+  buildUpdateExamCategory
 };
