@@ -117,9 +117,36 @@ function buildUpdateExamCategory(form) {
     form.cateCode,
   );
 }
+/**
+ * 분류별 시험분류 조회
+ * @param {object} form - 시험분류 정보
+ * @returns {any}       - 시험분류 목록
+ */
+function buildFindExamCategoryByDepth(form) {
+  let sql = `
+    SELECT 
+        cate_code 	AS value
+      , cate_name 	AS label
+      , cate_step 	AS depth
+      , parent_code AS root_key
+      , sub1_code		AS node_key
+    FROM tb_exam_cate_info
+    WHERE use_flag 	= 'Y'
+      AND cate_step = %s
+  `;
+  // 2depth
+  if (form.cate1Code) sql += ' AND parent_code = %s';
+  // 3depth
+  if (form.cate2Code) sql += ' AND sub1_code = %s';
+
+  sql += ' ORDER BY cate_code ASC';
+
+  return format(sql, form.cateStep, form.cate1Code, form.cate2Code);
+}
 
 export default {
   buildFindExamCategoryList,
   buildInsertExamCategory,
-  buildUpdateExamCategory
+  buildUpdateExamCategory,
+  buildFindExamCategoryByDepth
 };

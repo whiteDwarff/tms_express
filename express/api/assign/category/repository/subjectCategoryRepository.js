@@ -9,10 +9,6 @@ const findAll = async () => {
   const sql = query.buildFindSubjectCategoryList();
   return await db.query(sql);
 };
-
-
-
-
 /**
  * 교과목분류 등록
  * @param {object} form  - 교과목분류 정보

@@ -27,9 +27,18 @@ const updateExamCategory = async (form, client) => {
   const sql = query.buildUpdateExamCategory(form);
   return await db.query(sql, client);
 }
+/**
+ * 분류별 시험분류 조회
+ * @param {object} form  - 시험분류 정보
+ */
+const findExamCategoryByDepth = async (form) => {
+  const sql = query.buildFindExamCategoryByDepth(form);
+  return await db.query(sql);
+}
 
 export default {
   findAll,
   insertExamCategory,
-  updateExamCategory
+  updateExamCategory,
+  findExamCategoryByDepth
 };

@@ -72,11 +72,26 @@ const editExamCategory = async (params) => {
     client.release();
   }
 };
+/**
+ * 분류별 시험분류 조회
+ * @param {object} params - 검색조건
+ * @returns               - 결과
+ */
+const findByDepth = async (params) => {
+  try {
+    const result = await repository.findExamCategoryByDepth(params);
+    return { list: result.rows };
+  } catch (err) {
+    throw serviceErrorHandler(err);
+  }
+};
+
 
 // cateCode가 유무 확인
 const hasCateCode = (item) => !!item.cateCode;
 
 export default {
   findAll,
-  editExamCategory
+  editExamCategory,
+  findByDepth
 };
