@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 /**
- * 응시자 등록 및 수정
+ * 이미지 등록
  * @param {object} params - 첨부파일 경로 및 등록 정보
  * @param {array}  files  - 첨부파일 목록
  * @returns - 결과
@@ -33,5 +33,8 @@ const editorImageUpload = async (params, files) => {
     else throw new NotFoundError('등록 가능한 첨부파일이 없습니다.');
   } else throw new NotFoundError('등록 가능한 첨부파일이 없습니다.');
 };
+
+
+
 
 export default { editorImageUpload };

@@ -73,7 +73,7 @@ const editExamCategory = async (params) => {
   }
 };
 /**
- * 분류별 시험분류 조회
+ * 분류별 시험 목록 조회
  * @param {object} params - 검색조건
  * @returns               - 결과
  */

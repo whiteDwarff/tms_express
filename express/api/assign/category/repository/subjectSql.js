@@ -118,10 +118,33 @@ function buildUpdateSubjectCategory(form) {
     form.cateCode,
   );
 }
+/**
+ * 분류별 교과목 목록 조회
+ * @param {object} form - 교과목분류 정보
+ * @returns {array}       - 교과목분류 목록
+ */
+function buildFindSubjectCategoryByDepth(form) {
+  let sql = `
+    SELECT 
+        subject_cate_code AS value
+      , subject_cate_name AS label
+    FROM tb_subject_cate_info
+    WHERE use_flag   		  = 'Y'
+      AND cate_step 		  = %s
+`;
+  // 2depth
+  if (form.subjectCate1) sql += ' AND parent_code = %s';
+  // 3depth
+  if (form.subjectCate2) sql += ' AND sub1_code = %s';
 
+  sql += ' ORDER BY subject_cate_code ASC';
+
+  return format(sql, form.cateStep, form.subjectCate1, form.subjectCate2);
+}
 
 export default {
   buildFindSubjectCategoryList,
   buildInsertSubjectCategory,
   buildUpdateSubjectCategory,
+  buildFindSubjectCategoryByDepth
 };

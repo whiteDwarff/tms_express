@@ -28,7 +28,7 @@ const updateExamCategory = async (form, client) => {
   return await db.query(sql, client);
 }
 /**
- * 분류별 시험분류 조회
+ * 분류별 시험 목록 조회
  * @param {object} form  - 시험분류 정보
  */
 const findExamCategoryByDepth = async (form) => {

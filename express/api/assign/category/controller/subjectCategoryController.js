@@ -11,8 +11,6 @@ const findAll = async (req, res) => {
     ApiResponse.error(res, err);
   }
 };
-
-
 // 교과목분류 목록 등록 및 수정
 const editSubjectCategory = async (req, res) => {
   try {
@@ -22,8 +20,20 @@ const editSubjectCategory = async (req, res) => {
     ApiResponse.error(res, err);
   }
 };
+// 분류별 교과목 목록 조회
+const findByDepth = async (req, res) => {
+  try {
+    const result = await service.findByDepth(req.query);
+    ApiResponse.success(res, result); 
+  } catch (err) {
+    console.error(err);
+    ApiResponse.error(res, err);
+  }
+};
+
 
 export default {
   findAll,
-  editSubjectCategory
+  editSubjectCategory,
+  findByDepth
 };

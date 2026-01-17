@@ -73,11 +73,25 @@ const editSubjectCategory = async (params) => {
     client.release();
   }
 };
+/**
+ * 분류별 교과목 목록 조회
+ * @param {object} params - 검색조건
+ * @returns               - 결과
+ */
+const findByDepth = async (params) => {
+  try {
+    const result = await repository.findSubjectCategoryByDepth(params);
+    return { list: result.rows };
+  } catch (err) {
+    throw serviceErrorHandler(err);
+  }
+};
 
 // cateCode가 유무 확인
 const hasCateCode = (item) => !!item.cateCode;
 
 export default {
   findAll,
-  editSubjectCategory
+  editSubjectCategory,
+  findByDepth
 };

@@ -27,9 +27,19 @@ const updateSubjectCategory = async (form, client) => {
   const sql = query.buildUpdateSubjectCategory(form);
   return await db.query(sql, client);
 }
+/**
+ * 분류별 교과목 목록 조회
+ * @param {object} form  - 교과목분류 정보
+ */
+const findSubjectCategoryByDepth = async (form) => {
+  const sql = query.buildFindSubjectCategoryByDepth(form);
+  return await db.query(sql);
+}
+
 
 export default {
   findAll,
   insertSubjectCategory,
-  updateSubjectCategory
+  updateSubjectCategory,
+  findSubjectCategoryByDepth
 };
