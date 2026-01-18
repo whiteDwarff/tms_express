@@ -16,21 +16,6 @@ import { ApiResponse } from './api/utils/response.js';
 
 dotenv.config();
 
-
-import { translateKoToEn } from './api/utils/papago.js';
-import { generateImage } from './api/utils/pollinations.js';
-
-
-translateKoToEn('슈퍼맨 고양이를 귀엽게 만들어줘').then(
-  async (res) => {
-    console.log(res);
-    if (res.status == 200) {
-      const theme = await generateImage(res.prompt)
-      console.log(theme);
-    }
-  }
-)
-
 const app = express();
 app.set('port', process.env.PORT || 3000);
 

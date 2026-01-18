@@ -12,7 +12,18 @@ const editorImageUpload = async (req, res) => {
     ApiResponse.error(res, err);
   }
 };
+// 이미지 생성
+const generateImageFromPrompt = async (req, res) => {
+  try {
+    const body = req.body;
+    const result = await service.generateImageFromPrompt(body);
+    ApiResponse.success(res, result);
+  } catch (err) {
+    ApiResponse.error(res, err);
+  }
+};
 
 export default {
   editorImageUpload,
+  generateImageFromPrompt
 };

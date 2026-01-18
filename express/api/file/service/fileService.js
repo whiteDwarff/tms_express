@@ -61,6 +61,54 @@ async function saveFileFromMemory(file, subDir, str = '') {
   }
 }
 
+/**
+ * 저장된 파일을 복사
+ * @param {string} fileName - 복사할 파일명
+ * @param {string} fromDir  - 소스 디렉토리 (uploads 내 하위 경로)
+ * @param {string} toDir    - 대상 디렉토리 (uploads 내 하위 경로)
+ */
+async function copyFile(fileName, fromDir, toDir) {
+  if (!fileName || !fromDir || !toDir) {
+    throw new Error('파일명, 소스 디렉토리, 대상 디렉토리는 필수 파라미터입니다.');
+  }
+
+  try {
+    const srcDir = path.join(UPLOADS_BASE_DIR, fromDir);
+    const destDir = path.join(UPLOADS_BASE_DIR, toDir);
+    const srcPath = path.join(srcDir, fileName);
+
+    // 파일 존재 유무 확인
+    if (!fs.existsSync(srcPath)) throw new Error(`파일을 찾을 수 없습니다: ${srcPath}`);
+    // 대상 디렉토리가 없으면 생성
+    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+
+    
+    const ext = path.extname(fileName);
+    // 새로운 파일명 생성
+    const savedFileName = `${uuidv4()}-${String(Date.now())}${ext}`;
+    const destPath = path.join(destDir, savedFileName);
+
+    // 파일 복사
+    await fs.promises.copyFile(srcPath, destPath);
+
+    // 파일 정보 가져오기
+    const stats = await fs.promises.stat(srcPath);
+
+    return {
+      filePath: path.join('/uploads', toDir),
+      oriFileName: fileName,
+      savedFileName,
+      fullPath: `/${path.join('uploads', toDir, savedFileName).replace(/\\/g, '/')}`,
+      ext,
+      fileSize: stats.size,
+    };
+  } catch (err) {
+    console.error('파일 복사 중 오류 발생:', err);
+    throw new Error(`파일 복사 실패: ${err.message}`);
+  }
+}
+
 export default {
   saveFileFromMemory,
+  copyFile,
 };

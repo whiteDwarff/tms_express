@@ -2,6 +2,9 @@ import fileService from '#root/api/file/service/fileService.js';
 import { NotFoundError, ValidationError } from '#root/error/index.js';
 import { validFileExt } from '#root/common/validate-rules.js';
 
+import { translateKoToEn } from '#root/api/utils/papago.js';
+import { generateImage } from '#root/api/utils/pollinations.js';
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -34,7 +37,31 @@ const editorImageUpload = async (params, files) => {
   } else throw new NotFoundError('등록 가능한 첨부파일이 없습니다.');
 };
 
+/**
+ * 이미지 생성
+ * @param {object} param - 프롬프트, 모델, 이미지 크기
+ * @returns - 생성된 이미지 정보
+ */
+const generateImageFromPrompt = async (param) => {
+  try {
+    // 한글로 입력된 프롬프트를 영문으로 번역
+    const transRes = await translateKoToEn(param.prompt);
+    if (transRes.status == 200) {
+      // 번역된 텍스트와 파라미터를 통해 이미지 요청
+      const imageRes = await generateImage({
+        ...param,
+        prompt: transRes.text
+      });
+
+      if (imageRes) return imageRes;
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
 
 
-
-export default { editorImageUpload };
+export default { 
+  editorImageUpload, 
+  generateImageFromPrompt
+};
